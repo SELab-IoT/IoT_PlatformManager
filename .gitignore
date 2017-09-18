@@ -1,0 +1,15 @@
+# ignore all
+*
+**
+white list
+!.mvn/wrapper/maven-wrapper.jar
+!lib
+!lib/*
+!lib/**
+!src
+!src/*
+!src/**
+!pom.xml
+!LICENSE
+!README.md
+!.gitignore
