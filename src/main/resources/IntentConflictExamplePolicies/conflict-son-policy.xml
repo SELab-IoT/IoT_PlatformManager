@@ -1,0 +1,74 @@
+<Policy xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" PolicyId="ConflictSonPolicy" RuleCombiningAlgId="urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:deny-overrides" Version="1.0">
+	<Target>
+		<AnyOf>
+			<AllOf>
+				<Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">son</AttributeValue>
+					<AttributeDesignator AttributeId="http://selab.hanayng.ac.kr/id/role" Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+				</Match>
+				<Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">car</AttributeValue>
+					<AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:resource:resource-id" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:resource" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+				</Match>
+			</AllOf>
+		</AnyOf>
+	</Target>
+	<Rule Effect="Deny" RuleId="start-car-time">
+		<Condition>
+			<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:or">
+				<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:integer-greater-than">
+					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#integer">9</AttributeValue>
+					<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:integer-one-and-only">
+						<AttributeDesignator AttributeId="http://selab.hanyang.ac.kr/id/hour" Category="http://selab.hanyang.ac.kr/category" DataType="http://www.w3.org/2001/XMLSchema#integer" MustBePresent="true"/>
+					</Apply>
+				</Apply>
+				<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:integer-greater-than">
+					<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:integer-one-and-only">
+						<AttributeDesignator AttributeId="http://selab.hanyang.ac.kr/id/hour" Category="http://selab.hanyang.ac.kr/category" DataType="http://www.w3.org/2001/XMLSchema#integer" MustBePresent="true"/>
+					</Apply>
+					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#integer">16</AttributeValue>
+				</Apply>
+			</Apply>
+		</Condition>
+		<AdviceExpressions>
+			<AdviceExpression AdviceId="deny-time-range-advice" AppliesTo="Deny">
+				<AttributeAssignmentExpression AttributeId="urn:oasis:names:tc:xacml:2.0:example:attribute:text">
+					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Deny: Son can start car only between 9 and 16 o'clock.</AttributeValue>
+				</AttributeAssignmentExpression>
+			</AdviceExpression>
+		</AdviceExpressions>
+	</Rule>
+	<Rule Effect="Deny" RuleId="parent-assist">
+		<Condition>
+			<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:not">
+				<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">father</AttributeValue>
+					<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+						<AttributeDesignator AttributeId="http://selab.hanyang.ac.kr/id/assist" Category="http://selab.hanyang.ac.kr/category" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+					</Apply>
+				</Apply>
+			</Apply>
+		</Condition>
+		<AdviceExpressions>
+			<AdviceExpression AdviceId="deny-assist-advice" AppliesTo="Deny">
+				<AttributeAssignmentExpression AttributeId="urn:oasis:names:tc:xacml:2.0:example:attribute:text">
+					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Deny: Father/Mother have to sit in the passenger seat.</AttributeValue>
+				</AttributeAssignmentExpression>
+			</AdviceExpression>
+		</AdviceExpressions>
+	</Rule>
+    <Rule RuleId="permit-rule" Effect="Permit">
+    	<AdviceExpressions>
+			<AdviceExpression AdviceId="permit-assist-advice" AppliesTo="Permit">
+				<AttributeAssignmentExpression AttributeId="urn:oasis:names:tc:xacml:2.0:example:attribute:text">
+					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Permit: Father/Mother is sitting in the passenger seat.</AttributeValue>
+				</AttributeAssignmentExpression>
+			</AdviceExpression>
+			<AdviceExpression AdviceId="permit-time-range-advice" AppliesTo="Permit">
+				<AttributeAssignmentExpression AttributeId="urn:oasis:names:tc:xacml:2.0:example:attribute:text">
+					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Permit: Son starts car between 9 and 16 o'clock.</AttributeValue>
+				</AttributeAssignmentExpression>
+			</AdviceExpression>
+		</AdviceExpressions>
+    </Rule>
+</Policy>
