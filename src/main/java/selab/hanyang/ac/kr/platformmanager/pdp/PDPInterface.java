@@ -9,6 +9,7 @@ import org.wso2.balana.*;
 import org.wso2.balana.attr.AttributeFactory;
 import org.wso2.balana.combine.CombiningAlgFactory;
 import org.wso2.balana.cond.FunctionFactoryProxy;
+import org.wso2.balana.ctx.xacml3.RequestCtx;
 import selab.hanyang.ac.kr.platformmanager.database.model.PEP;
 import selab.hanyang.ac.kr.platformmanager.database.model.Policy;
 import selab.hanyang.ac.kr.platformmanager.database.repository.PEPRepository;
@@ -70,7 +71,7 @@ public class PDPInterface {
     }
 
 
-
+    /* Deprecated */
     // API 1. evaluate
     public String evaluate(String request, String pepId) {
         // 매번 생성하는 로드를 줄이기 위한 방법을 검토해볼 것.
@@ -80,6 +81,18 @@ public class PDPInterface {
         if (pdpName != null) {
             PDP pdp = pdpHashMap.get(pdpName);
             return pdp.evaluate(request);
+        } else {
+            System.out.println("pdpName is null");
+            return null;
+        }
+    }
+
+
+    public String evaluate(RequestCtx requestCtx, String pepId) {
+        String pdpName = getPDPConfigName(pepId);
+        if (pdpName != null) {
+            PDP pdp = pdpHashMap.get(pdpName);
+            return pdp.evaluate(requestCtx).encode();
         } else {
             System.out.println("pdpName is null");
             return null;
