@@ -4,18 +4,22 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.wso2.balana.*;
 import org.wso2.balana.attr.AttributeFactory;
 import org.wso2.balana.combine.CombiningAlgFactory;
 import org.wso2.balana.cond.FunctionFactoryProxy;
+import selab.hanyang.ac.kr.platformmanager.database.model.PEP;
 import selab.hanyang.ac.kr.platformmanager.database.model.Policy;
 import selab.hanyang.ac.kr.platformmanager.database.repository.PEPRepository;
 import selab.hanyang.ac.kr.platformmanager.database.repository.PolicyRepository;
 
+import javax.annotation.PostConstruct;
 import java.io.*;
 import java.util.HashMap;
 import java.util.List;
 
+@Component
 public class PDPInterface {
 
     private static PDPInterface pdpInterface;
@@ -33,9 +37,13 @@ public class PDPInterface {
         return pdpInterface = Singleton.instance;
     }
     private PDPInterface() {
-
-        initBalana();
+        pdpHashMap = new HashMap<>();
     }
+
+    private static class Singleton{
+        private static final PDPInterface instance = new PDPInterface();
+    }
+
     private JsonObject getDatabaseConf(String loc) {
         File confFile = new File(loc);
         String confString = readFromFile(confFile);
@@ -60,9 +68,8 @@ public class PDPInterface {
         }
         return null;
     }
-    private static class Singleton{
-        private static final PDPInterface instance = new PDPInterface();
-    }
+
+
 
     // API 1. evaluate
     public String evaluate(String request, String pepId) {
@@ -81,9 +88,13 @@ public class PDPInterface {
 
     private String getPDPConfigName(String pepId) {
 
-        Policy policy = policyRepository.findOne(pepRepository.findOneByPepId(pepId).getId());
-
-        return policy.getName();
+        PEP pep = pepRepository.findOneByPepId(pepId);
+        if (pep != null){
+            Policy policy = policyRepository.findOne(pep.getId());
+            return policy.getName();
+        } else {
+            return null;
+        }
     }
 
     private PDP getPDPNewInstance(String pdpConfigName) {
@@ -138,9 +149,10 @@ public class PDPInterface {
         }
     }
 
+    @PostConstruct
     private void initBalana(){
         // Set balana config file.
-        String configLocation = "resources"+File.separator+"config.xml";
+        String configLocation = "src" + File.separator + "main" + File.separator + "resources"+File.separator+"config.xml";
         System.setProperty(ConfigurationStore.PDP_CONFIG_PROPERTY, configLocation);
 
         // Create default instance of Balana
@@ -154,9 +166,7 @@ public class PDPInterface {
     }
 
     private List<String> getPDPNameList() {
-
         return policyRepository.findAllName();
-
     }
 
 

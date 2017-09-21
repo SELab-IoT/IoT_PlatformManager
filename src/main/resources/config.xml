@@ -3,7 +3,7 @@
     <pdp name="pdp">
         <policyFinderModule class="org.wso2.balana.finder.impl.FileBasedPolicyFinderModule">
             <set>
-                <string>resources/IntentConflictExamplePolicies</string>
+                <string>src/main/resources/IntentConflictExamplePolicies</string>
             </set>
         </policyFinderModule>
     </pdp>
@@ -12,7 +12,7 @@
         <attributeFinderModule class="org.wso2.balana.finder.impl.SelectorModule"/>
         <policyFinderModule class="org.wso2.balana.finder.impl.FileBasedPolicyFinderModule">
             <set>
-                <string>resources/IntentConflictExamplePolicies</string>
+                <string>src/main/resources/IntentConflictExamplePolicies</string>
             </set>
         </policyFinderModule>
     </pdp>

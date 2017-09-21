@@ -1,0 +1,33 @@
+{
+	"pepId": "pep1",
+	"attributeList": ["http://selab.hanyang.ac.kr/category"],
+	"body":"
+	<Request xmlns=\"urn:oasis:names:tc:xacml:3.0:core:schema:wd-17\" CombinedDecision=\"true\" ReturnPolicyIdList=\"false\">
+        <Attributes Category=\"urn:oasis:names:tc:xacml:3.0:attribute-category:action\">
+            <Attribute AttributeId=\"urn:oasis:names:tc:xacml:1.0:action:action-id\" IncludeInResult=\"false\">
+                <AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#string\">start</AttributeValue>
+            </Attribute>
+        </Attributes>
+        <Attributes Category=\"urn:oasis:names:tc:xacml:1.0:subject-category:access-subject\">
+            <Attribute AttributeId=\"http://selab.hanayng.ac.kr/id/role\" IncludeInResult=\"false\">
+                <AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#string\">son</AttributeValue>
+                <AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#string\">family</AttributeValue>
+            </Attribute>
+        </Attributes>
+        <Attributes Category=\"urn:oasis:names:tc:xacml:3.0:attribute-category:resource\">
+            <Attribute AttributeId=\"urn:oasis:names:tc:xacml:1.0:resource:resource-id\" IncludeInResult=\"false\">
+                <AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#string\">car</AttributeValue>
+            </Attribute>
+        </Attributes>
+        <Attributes Category=\"http://selab.hanyang.ac.kr/category\">
+	    	<Attribute AttributeId=\"http://selab.hanyang.ac.kr/id/assist\" IncludeInResult=\"false\">
+	    		<AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#string\">father</AttributeValue>
+	    	</Attribute>
+	    	<Attribute AttributeId=\"http://selab.hanyang.ac.kr/id/hour\" IncludeInResult=\"false\">
+	    		<AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#integer\">12</AttributeValue>
+	    	</Attribute>
+	    </Attributes>
+    </Request>
+    "
+}
+
