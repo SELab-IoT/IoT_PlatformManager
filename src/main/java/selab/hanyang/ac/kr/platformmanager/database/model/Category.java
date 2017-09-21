@@ -10,6 +10,10 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int _id;
 
+    @ManyToOne
+    @JoinColumn(name = "policy_id")
+    private Policy policy;
+
     @Column(name = "pep_category")
     private String pepCategory;
 

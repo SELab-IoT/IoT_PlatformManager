@@ -10,4 +10,5 @@ public interface PolicyRepository extends JpaRepository<Policy, Integer> {
 
     @Query("select p.name from Policy p")
     List<String> findAllName();
+
 }

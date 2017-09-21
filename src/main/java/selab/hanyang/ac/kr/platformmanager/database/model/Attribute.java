@@ -10,6 +10,10 @@ public class Attribute {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int _id;
 
+    @ManyToOne
+    @JoinColumn(name = "policy_id")
+    private Policy policy;
+
     @Column(name = "pep_attribute")
     private String pepAttribute;
 
@@ -17,7 +21,7 @@ public class Attribute {
     private String attributeId;
 
     @ManyToOne
-    @JoinColumn(name = "category_id")
+    @JoinColumn(name = "category_id", nullable = true)
     private Category category;
 
 }
