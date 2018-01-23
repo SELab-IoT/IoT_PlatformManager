@@ -16,6 +16,8 @@ import java.util.*;
 
 public class XACMLConverter {
 
+
+    @Deprecated
     public RequestCtx convert(JsonArray requestJson) throws URISyntaxException {
         Set<Attributes> attributesSet = new HashSet<>();
         for (JsonElement requestElement : requestJson) {
