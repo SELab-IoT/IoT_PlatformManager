@@ -11,7 +11,6 @@ import org.wso2.balana.combine.CombiningAlgFactory;
 import org.wso2.balana.cond.FunctionFactoryProxy;
 import org.wso2.balana.ctx.xacml3.RequestCtx;
 import selab.hanyang.ac.kr.platformmanager.database.model.PEP;
-import selab.hanyang.ac.kr.platformmanager.database.model.Policy;
 import selab.hanyang.ac.kr.platformmanager.database.repository.PEPRepository;
 import selab.hanyang.ac.kr.platformmanager.database.repository.PolicyRepository;
 
@@ -103,8 +102,8 @@ public class PDPInterface {
 
         PEP pep = pepRepository.findOneByPepId(pepId);
         if (pep != null){
-            Policy policy = policyRepository.findOne(pep.getId());
-            return policy.getName();
+            selab.hanyang.ac.kr.platformmanager.database.model.PDP pdp = policyRepository.findOne(pep.getId());
+            return pdp.getName();
         } else {
             return null;
         }

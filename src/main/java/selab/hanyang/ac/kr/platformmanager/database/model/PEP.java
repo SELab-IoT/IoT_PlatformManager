@@ -14,8 +14,8 @@ public class PEP {
     private String pepId;
 
     @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "policy_id")
-    private Policy policy;
+    @JoinColumn(name = "pdp_id")
+    private PDP pdp;
 
     public int getId() {
         return _id;
