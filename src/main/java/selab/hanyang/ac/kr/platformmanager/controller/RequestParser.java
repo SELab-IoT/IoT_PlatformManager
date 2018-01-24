@@ -3,6 +3,8 @@ import com.google.gson.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 // 리퀘스트 편하게 쓰기 위한 클래스.
@@ -10,7 +12,7 @@ import java.util.stream.Collectors;
 class RequestParser{
 
     private Gson gson;
-    private JsonObject json;
+    private JsonElement json;
 
     public RequestParser(HttpServletRequest request){
         this.gson = new GsonBuilder().create();
@@ -32,14 +34,29 @@ class RequestParser{
         return json;
     }
 
-    // get full JsonElement as JsonArray
+    // get full JsonObject
+    public JsonObject getAsJsonObject(){
+        return json.getAsJsonObject();
+    }
+
+    // get full JsonArray
     public JsonArray getAsJsonArray(){
         return json.getAsJsonArray();
     }
 
     // get JsonElement with key
     public JsonElement get(String key){
-        return json.get(key);
+        return getAsJsonObject().get(key);
+    }
+
+    // get JsonObject with key
+    public JsonObject getAsJsonObject(String key){
+        return get(key).getAsJsonObject();
+    }
+
+    // get JsonArray with key
+    public JsonArray getAsJsonArray(String key){
+        return get(key).getAsJsonArray();
     }
 
     // get String value
@@ -50,6 +67,13 @@ class RequestParser{
     // get Int value
     public int getAsInt(String key){
         return get(key) == null ? null : get(key).getAsInt();
+    }
+
+    // map Element to Object
+    public static List<JsonObject> mapToObject(JsonArray array){
+        List<JsonObject> list = new ArrayList<>();
+        array.forEach(e -> list.add(e.getAsJsonObject()));
+        return list;
     }
 
 
