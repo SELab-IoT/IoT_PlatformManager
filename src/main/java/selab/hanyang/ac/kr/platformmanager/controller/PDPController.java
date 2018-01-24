@@ -1,9 +1,5 @@
 package selab.hanyang.ac.kr.platformmanager.controller;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,15 +12,11 @@ import selab.hanyang.ac.kr.platformmanager.pdp.XACMLConverter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.stream.Collectors;
 
+//윤근(수정)
 @Controller
 public class PDPController {
-
-    Gson gson = new GsonBuilder().create();
-
 
     @Autowired
     PDPInterface pdpInterface;
@@ -32,37 +24,26 @@ public class PDPController {
     @RequestMapping(value = "evaluate", method = RequestMethod.POST)
     public @ResponseBody
     String evaluatePolicyRequest(HttpServletRequest request, HttpServletResponse httpResponse) {
+        RequestParser reqParser = new RequestParser(request);
+
+        String requestBody = reqParser.getAsString("body");
+        String pepId = reqParser.getAsString("pepId");
+
+        RequestCtx requestCtx = null;
         try {
-            String requestText = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
-
-            JsonObject inputJson = gson.fromJson(requestText, JsonObject.class);
-            String requestBody = inputJson.get("body").getAsString();
-
-            String pepId = null;
-            if (inputJson.get("pepId") != null)
-                pepId = inputJson.get("pepId").getAsString();
-
-            RequestCtx requestCtx = null;
-            try {
-                requestCtx = new XACMLConverter().convert(gson.fromJson(requestBody, JsonArray.class));
-                System.out.println(requestCtx);
-            } catch (URISyntaxException e) {
-                e.printStackTrace();
-            }
-            String response = evaluateRequest(requestCtx, pepId);
-
-            if (response == null) {
-                httpResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                return response;
-            }
-
-            return response;
-        } catch (IOException e) {
+            requestCtx = new XACMLConverter().convert(reqParser.getAsJsonArray());
+            System.out.println(requestCtx);
+        } catch (URISyntaxException e) {
             e.printStackTrace();
-            httpResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return null;
         }
+
+        String response = evaluateRequest(requestCtx, pepId);
+        if (response == null)
+            httpResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        return response;
+
     }
+
 
     /* Deprecated */
     private String evaluateRequest(String requestBody, String pepId) {
@@ -75,29 +56,17 @@ public class PDPController {
 
     @RequestMapping(value = "reload", method = RequestMethod.POST)
     public @ResponseBody String reloadPDP(HttpServletRequest request, HttpServletResponse httpResponse) {
-        Gson gson = new GsonBuilder().create();
-        try {
-            String requestText = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
-            JsonObject inputJson = gson.fromJson(requestText, JsonObject.class);
-            String pdpName = null;
-            if (inputJson.get("pdpName") != null)
-                pdpName = inputJson.get("pdpName").getAsString();
-            else
-                httpResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 
-            boolean isSuccess = PDPInterface.getInstance().reloadPDP(pdpName);
-            if (isSuccess)
-                return "reloadSuccess";
-            else
-                httpResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        RequestParser reqParser = new RequestParser(request);
 
-            return null;
-        } catch (IOException e) {
-            e.printStackTrace();
+        String pdpName = reqParser.getAsString("pdpName");
+        if(pdpName == null)
             httpResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return null;
-        }
 
+        boolean isSuccess = PDPInterface.getInstance().reloadPDP(pdpName);
+        if (isSuccess) return "reloadSuccess";
+        else httpResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        return null;
     }
 
 }
