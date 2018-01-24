@@ -6,7 +6,7 @@ import selab.hanyang.ac.kr.platformmanager.database.model.PDP;
 
 import java.util.List;
 
-public interface PolicyRepository extends JpaRepository<PDP, Integer> {
+public interface PDPRepository extends JpaRepository<PDP, Integer> {
 
     @Query("select p.name from PDP p")
     List<String> findAllName();
