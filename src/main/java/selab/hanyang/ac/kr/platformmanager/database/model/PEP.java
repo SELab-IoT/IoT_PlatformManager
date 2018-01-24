@@ -31,4 +31,8 @@ public class PEP {
     public PDP getPDP() {
         return pdp;
     }
+
+    public PEPGroup getPepGroup() {
+        return pepGroup;
+    }
 }
