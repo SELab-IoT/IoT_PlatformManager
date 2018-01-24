@@ -3,6 +3,7 @@ package selab.hanyang.ac.kr.platformmanager.database.model;
 import javax.persistence.*;
 import java.io.Serializable;
 
+//TODO: toConvertable JSON
 @Entity
 @Table(name = "user_profile")
 public class UserProfile {
