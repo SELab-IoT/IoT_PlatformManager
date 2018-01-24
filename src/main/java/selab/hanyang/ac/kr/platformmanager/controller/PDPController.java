@@ -24,14 +24,14 @@ public class PDPController {
     @RequestMapping(value = "evaluate", method = RequestMethod.POST)
     public @ResponseBody
     String evaluatePolicyRequest(HttpServletRequest request, HttpServletResponse httpResponse) {
-        RequestParser reqParser = new RequestParser(request);
+        RequestParser parser = new RequestParser(request);
 
-        String requestBody = reqParser.getAsString("body");
-        String pepId = reqParser.getAsString("pepId");
+        String requestBody = parser.getAsString("body");
+        String pepId = parser.getAsString("pepId");
 
         RequestCtx requestCtx = null;
         try {
-            requestCtx = new XACMLConverter().convert(reqParser.getAsJsonArray());
+            requestCtx = new XACMLConverter().convert(parser.getAsJsonArray());
             System.out.println(requestCtx);
         } catch (URISyntaxException e) {
             e.printStackTrace();
@@ -43,7 +43,6 @@ public class PDPController {
         return response;
 
     }
-
 
     /* Deprecated */
     private String evaluateRequest(String requestBody, String pepId) {
@@ -57,9 +56,9 @@ public class PDPController {
     @RequestMapping(value = "reload", method = RequestMethod.POST)
     public @ResponseBody String reloadPDP(HttpServletRequest request, HttpServletResponse httpResponse) {
 
-        RequestParser reqParser = new RequestParser(request);
+        RequestParser parser = new RequestParser(request);
 
-        String pdpName = reqParser.getAsString("pdpName");
+        String pdpName = parser.getAsString("pdpName");
         if(pdpName == null)
             httpResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 
