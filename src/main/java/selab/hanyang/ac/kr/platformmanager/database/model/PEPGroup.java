@@ -21,4 +21,19 @@ public class PEPGroup {
     @JoinColumn(name = "owner")
     private User owner;
 
+    public long getPepGroupID() {
+        return pepGroupID;
+    }
+
+    public String getPepGroupName() {
+        return pepGroupName;
+    }
+
+    public String getGroupPW() {
+        return groupPW;
+    }
+
+    public User getOwner() {
+        return owner;
+    }
 }
