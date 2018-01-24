@@ -12,7 +12,7 @@ import org.wso2.balana.cond.FunctionFactoryProxy;
 import org.wso2.balana.ctx.xacml3.RequestCtx;
 import selab.hanyang.ac.kr.platformmanager.database.model.PEP;
 import selab.hanyang.ac.kr.platformmanager.database.repository.PEPRepository;
-import selab.hanyang.ac.kr.platformmanager.database.repository.PolicyRepository;
+import selab.hanyang.ac.kr.platformmanager.database.repository.PDPRepository;
 
 import javax.annotation.PostConstruct;
 import java.io.*;
@@ -30,7 +30,7 @@ public class PDPInterface {
     private PEPRepository pepRepository;
 
     @Autowired
-    private PolicyRepository policyRepository;
+    private PDPRepository PDPRepository;
 
     //Thread-safe singleton
     public static PDPInterface getInstance() {
@@ -102,7 +102,7 @@ public class PDPInterface {
 
         PEP pep = pepRepository.findOneByPepId(pepId);
         if (pep != null){
-            selab.hanyang.ac.kr.platformmanager.database.model.PDP pdp = policyRepository.findOne(pep.getId());
+            selab.hanyang.ac.kr.platformmanager.database.model.PDP pdp = pep.getPDP();
             return pdp.getName();
         } else {
             return null;
@@ -178,7 +178,7 @@ public class PDPInterface {
     }
 
     private List<String> getPDPNameList() {
-        return policyRepository.findAllName();
+        return PDPRepository.findAllName();
     }
 
 

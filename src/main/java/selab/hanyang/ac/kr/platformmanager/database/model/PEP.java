@@ -7,17 +7,28 @@ import javax.persistence.*;
 public class PEP {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private int _id;
-
     @Column(name = "pep_id", nullable = false)
     private String pepId;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @Column(name = "pep_name")
+    private String pepName;
+
+    @ManyToOne
+    @JoinColumn(name = "pep_group_id")
+    private PEPGroup pepGroup;
+
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "pdp_id")
     private PDP pdp;
 
-    public int getId() {
-        return _id;
+    @Column(name = "ip")
+    private String ip;
+
+    public String getId() {
+        return pepId;
+    }
+
+    public PDP getPDP() {
+        return pdp;
     }
 }
