@@ -25,6 +25,7 @@ public class DeviceRegister {
     *  ]
     * */
 
+    // Device 등록 기능
     @RequestMapping(value = "devices/{pepID}", method = RequestMethod.POST)
     public @ResponseBody
     String updateDeviceProfile(@PathVariable String pepID, HttpServletRequest request, HttpServletResponse httpResponse){
@@ -33,17 +34,39 @@ public class DeviceRegister {
         List<JsonObject> devices = RequestParser.mapToObject(parser.getAsJsonArray());
 
         devices.stream().forEachOrdered(device -> {
-            String id = device.get("deviceID").getAsString(); //Device.deviceID, DeviceAction.deviceID
-            String name = device.get("deviceName").getAsString(); //Device.deviceName
+            String deviceID = device.get("deviceID").getAsString(); //Device.deviceID, DeviceAction.deviceID
+            String deviceName = device.get("deviceName").getAsString(); //Device.deviceName
             List<JsonObject> actions = RequestParser.mapToObject(device.get("actions").getAsJsonArray());
-            actions.stream().forEach(action -> {
-                String actionID = action.get("actionID").getAsString();  // DeviceAction.actionID
-                String actionName = action.get("actionName").getAsString(); // DeviceAction.actionName
-                JsonArray params = action.get("params").getAsJsonArray(); // DeviceAction.params
-
-            });
+            updateDeviceProfile(deviceID, deviceName, pepID, actions);
         });
 
+        // ack/nak 메시지
         return null;
+    }
+
+    // 실제 DB 업데이트
+    private boolean updateDeviceProfile(String deviceID, String deviceName, String pepID, List<JsonObject> actions) {
+
+        // 0. 트랜젝션 begin
+        // 1. 해당 deviceID가 있는지 확인
+        // 1.a. 있으면 해당 레코드에 대해 업데이트 쿼리 수행하거나 혹은 해당 레코드를 지우고 새로 추가
+
+        // 1.b. 없으면 레코드 새로 추가
+        actions.stream().forEach(action -> {
+            String actionID = action.get("actionID").getAsString();  // DeviceAction.actionID
+            String actionName = action.get("actionName").getAsString(); // DeviceAction.actionName
+            JsonObject params = action.get("params").getAsJsonObject(); // DeviceAction.params
+            // Device 테이블에 레코드 추가
+            // ~~~
+            // DeviceAction 테이블에 레코드 추가
+            updateDeviceAction(actionID, actionName, deviceID, params);
+        });
+        // E. 트랜젝션 end
+        return true;
+    }
+
+    private boolean updateDeviceAction(String actionID, String actionName, String deviceID, JsonObject params) {
+        // DeviceAction 테이블에 레코드 추가.
+        return true;
     }
 }

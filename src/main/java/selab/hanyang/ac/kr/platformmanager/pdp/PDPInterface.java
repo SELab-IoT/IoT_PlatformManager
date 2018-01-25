@@ -30,7 +30,7 @@ public class PDPInterface {
     private PEPRepository pepRepository;
 
     @Autowired
-    private PDPRepository PDPRepository;
+    private PDPRepository pdpRepository;
 
     //Thread-safe singleton
     public static PDPInterface getInstance() {
@@ -52,14 +52,13 @@ public class PDPInterface {
         return confJson;
     }
     private String readFromFile(File file) {
-        BufferedReader br = null;
+        BufferedReader br;
         try {
             br = new BufferedReader(new FileReader(file));
             String line;
             String totalLine = "";
-            while ((line = br.readLine()) != null) {
+            while ((line = br.readLine()) != null)
                 totalLine += line;
-            }
             return totalLine;
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -153,8 +152,7 @@ public class PDPInterface {
     //TODO: rest api로 제공 필요
     public boolean reloadPDP(String pdpName) {
         try {
-            PDP pdp = getPDPNewInstance(pdpName);
-            pdpHashMap.put(pdpName, pdp);
+            pdpHashMap.put(pdpName, getPDPNewInstance(pdpName));
             return true;
         } catch (Exception e){
             return false;
@@ -170,15 +168,12 @@ public class PDPInterface {
         // Create default instance of Balana
         balana = Balana.getInstance();
 
-        List<String> pdpNameList = getPDPNameList();
-        for (String pdpName :
-                pdpNameList) {
-            reloadPDP(pdpName);
-        }
+        getPDPNameList().forEach(pdpName -> reloadPDP(pdpName));
+
     }
 
     private List<String> getPDPNameList() {
-        return PDPRepository.findAllName();
+        return pdpRepository.findAllName();
     }
 
 
