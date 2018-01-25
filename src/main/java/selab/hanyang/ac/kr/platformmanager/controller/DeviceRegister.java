@@ -2,15 +2,24 @@ package selab.hanyang.ac.kr.platformmanager.controller;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import selab.hanyang.ac.kr.platformmanager.database.model.Device;
+import selab.hanyang.ac.kr.platformmanager.database.model.DeviceAction;
+import selab.hanyang.ac.kr.platformmanager.database.model.PEP;
+import selab.hanyang.ac.kr.platformmanager.database.repository.DeviceActionRepository;
+import selab.hanyang.ac.kr.platformmanager.database.repository.DeviceRepository;
+import selab.hanyang.ac.kr.platformmanager.database.repository.PEPRepository;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 //윤근
 @Controller
@@ -25,48 +34,54 @@ public class DeviceRegister {
     *  ]
     * */
 
+    @Autowired
+    private PEPRepository pepRepo;
+
+    @Autowired
+    private DeviceRepository devRepo;
+
+    @Autowired
+    private DeviceActionRepository devActRepo;
+
     // Device 등록 기능
     @RequestMapping(value = "devices/{pepID}", method = RequestMethod.POST)
     public @ResponseBody
-    String updateDeviceProfile(@PathVariable String pepID, HttpServletRequest request, HttpServletResponse httpResponse){
+    String updateDevice(@PathVariable String pepID, HttpServletRequest request, HttpServletResponse httpResponse){
 
         RequestParser parser = new RequestParser(request);
         List<JsonObject> devices = RequestParser.mapToObject(parser.getAsJsonArray());
+        PEP pep = pepRepo.findOneByPepId(pepID);
+        boolean success = updateDevice(pep, devices);
 
-        devices.stream().forEachOrdered(device -> {
-            String deviceID = device.get("deviceID").getAsString(); //Device.deviceID, DeviceAction.deviceID
-            String deviceName = device.get("deviceName").getAsString(); //Device.deviceName
-            List<JsonObject> actions = RequestParser.mapToObject(device.get("actions").getAsJsonArray());
-            updateDeviceProfile(deviceID, deviceName, pepID, actions);
-        });
-
-        // ack/nak 메시지
-        return null;
+        // ack/nak 메시지 - 추후 형식에 맞게 수정
+        return success ? "Ack":"Nak";
     }
 
-    // 실제 DB 업데이트
-    private boolean updateDeviceProfile(String deviceID, String deviceName, String pepID, List<JsonObject> actions) {
-
-        // 0. 트랜젝션 begin
-        // 1. 해당 deviceID가 있는지 확인
-        // 1.a. 있으면 해당 레코드에 대해 업데이트 쿼리 수행하거나 혹은 해당 레코드를 지우고 새로 추가
-
-        // 1.b. 없으면 레코드 새로 추가
-        actions.stream().forEach(action -> {
-            String actionID = action.get("actionID").getAsString();  // DeviceAction.actionID
-            String actionName = action.get("actionName").getAsString(); // DeviceAction.actionName
-            JsonObject params = action.get("params").getAsJsonObject(); // DeviceAction.params
-            // Device 테이블에 레코드 추가
-            // ~~~
-            // DeviceAction 테이블에 레코드 추가
-            updateDeviceAction(actionID, actionName, deviceID, params);
+    // 해당 pep에 대한 device들 DB에 추가(Device)
+    private boolean updateDevice(PEP pep, List<JsonObject> devices) {
+        Stream<Device> ds = devices.stream().map(dev -> {
+            String devID = dev.get("deviceID").getAsString();
+            String devName = dev.get("deviceName").getAsString();
+            Device device = new Device(devID, devName, pep, ""); // 새 Device 객체 생성
+            List<JsonObject> actions = RequestParser.mapToObject(dev.get("actions").getAsJsonArray()); // 해당 Device의 액션들
+            updateDeviceAction(device, actions);
+            return device;
         });
-        // E. 트랜젝션 end
+        devRepo.save(ds.collect(Collectors.toList()));
         return true;
     }
 
-    private boolean updateDeviceAction(String actionID, String actionName, String deviceID, JsonObject params) {
-        // DeviceAction 테이블에 레코드 추가.
+    // 해당 device에 대한 action들 DB에 추가(DeviceAction)
+    private boolean updateDeviceAction(Device device, List<JsonObject> actions) {
+        Stream<DeviceAction> as = actions.stream().map(act -> {
+            String actionID = act.get("actionID").getAsString();  // DeviceAction.actionID
+            String actionName = act.get("actionName").getAsString(); // DeviceAction.actionName
+            JsonObject params = act.get("params").getAsJsonObject(); // DeviceAction.params
+            DeviceAction action = new DeviceAction(actionID, actionName, device, params.toString());
+            return action;
+        });
+        devActRepo.save(as.collect(Collectors.toList()));
         return true;
     }
+
 }
