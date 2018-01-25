@@ -6,6 +6,15 @@ import javax.persistence.*;
 @Table(name = "pep_group")
 public class PEPGroup {
 
+    public PEPGroup() {
+    }
+
+    public PEPGroup(String pepGroupName, String groupPW, User owner) {
+        this.pepGroupName = pepGroupName;
+        this.groupPW = groupPW;
+        this.owner = owner;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "pep_group_id")

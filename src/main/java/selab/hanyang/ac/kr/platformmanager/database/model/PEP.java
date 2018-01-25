@@ -6,6 +6,9 @@ import javax.persistence.*;
 @Table(name = "pep")
 public class PEP {
 
+    public PEP() {
+    }
+
     @Id
     @Column(name = "pep_id", nullable = false)
     private String pepId;
@@ -34,5 +37,21 @@ public class PEP {
 
     public PEPGroup getPepGroup() {
         return pepGroup;
+    }
+
+    public void setPepName(String pepName) {
+        this.pepName = pepName;
+    }
+
+    public void setPepGroup(PEPGroup pepGroup) {
+        this.pepGroup = pepGroup;
+    }
+
+    public void setPdp(PDP pdp) {
+        this.pdp = pdp;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
     }
 }

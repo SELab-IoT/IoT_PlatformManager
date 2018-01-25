@@ -19,4 +19,7 @@ public class User {
     @Convert(converter = UserProfileConverter.class)
     private UserProfile userProfile;
 
+    public String getUserId() {
+        return userId;
+    }
 }
