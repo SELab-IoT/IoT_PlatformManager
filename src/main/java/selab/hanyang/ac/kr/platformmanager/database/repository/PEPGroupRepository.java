@@ -7,8 +7,13 @@ import selab.hanyang.ac.kr.platformmanager.database.model.PEP;
 import selab.hanyang.ac.kr.platformmanager.database.model.PEPGroup;
 import selab.hanyang.ac.kr.platformmanager.database.model.User;
 
-public interface PEPGroupRepository extends JpaRepository<PEPGroup, Long>{
+import java.util.List;
+
+public interface PEPGroupRepository extends JpaRepository<PEPGroup, String> {
+
+    List<PEPGroup> findByOwner(String owner);
 
     @Query("select pg from PEP p join p.pepGroup pg where p.pepId=:#{#pep.pepId} and pg.owner.userId=:#{#owner.userId}")
-    PEPGroup findByOwnerAndPEP(@Param("owner")User owner, @Param("pep") PEP pep);
+    PEPGroup findByOwnerAndPEP(@Param("owner") User owner, @Param("pep") PEP pep);
+
 }

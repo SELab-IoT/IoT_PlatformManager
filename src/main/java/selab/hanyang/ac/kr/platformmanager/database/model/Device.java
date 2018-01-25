@@ -20,4 +20,10 @@ public class Device {
     @Column(name = "profile")
     private String profile;
 
+    public Device(String devID, String devName, PEP pep, String profile) {
+        this.deviceId = devID;
+        this.deviceName = devName;
+        this.pep = pep;
+        this.profile = profile;
+    }
 }
