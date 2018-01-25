@@ -9,17 +9,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import selab.hanyang.ac.kr.platformmanager.database.model.GroupMember;
-import selab.hanyang.ac.kr.platformmanager.database.model.PEP;
-import selab.hanyang.ac.kr.platformmanager.database.model.PEPGroup;
-import selab.hanyang.ac.kr.platformmanager.database.model.User;
 import selab.hanyang.ac.kr.platformmanager.database.repository.GroupMemberRepository;
 import selab.hanyang.ac.kr.platformmanager.database.repository.PEPGroupRepository;
 import selab.hanyang.ac.kr.platformmanager.database.repository.PEPRepository;
 import selab.hanyang.ac.kr.platformmanager.database.repository.UserRepository;
+import selab.hanyang.ac.kr.platformmanager.service.PEPRegisterService;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 @Controller
 public class PEPRegister {
@@ -36,66 +33,47 @@ public class PEPRegister {
     @Autowired
     GroupMemberRepository groupMemberRepository;
 
+    @Autowired
+    PEPRegisterService pepRegisterService;
 
-    @RequestMapping(name = "/groups", method = RequestMethod.POST)
+
+    @RequestMapping(value = "/groups", method = RequestMethod.POST)
     public @ResponseBody String addPEPtoPEPGroup(HttpServletRequest request) {
         RequestParser parser = new RequestParser(request);
         JsonObject object = parser.getAsJsonObject();
-        String userId = object.get("userID").getAsString();
-        String pepId = object.get("pepID").getAsString();
-        User user = userRepository.findOne(userId);
-        PEP pep = pepRepository.findOneByPepId(pepId);
+        JsonObject response = null;
         Gson gson = new GsonBuilder().create();
-        JsonObject response = new JsonObject();
-        if (user == null) {
-            response.addProperty("error", "Not found user");
-        } else if (pep == null) {
-            response.addProperty("error", "Not found pep");
-        } else if (object.get("pepGroupPW") != null) {
-            String pepGroupName = object.get("pepGroupName").getAsString();
-            String pepGroupPW = object.get("pepGroupPW").getAsString();
-            PEPGroup pepGroup = new PEPGroup(pepGroupName, pepGroupPW, user);
-            pepGroupRepository.saveAndFlush(pepGroup);
-            pep.setPepGroup(pepGroup);
-            pepRepository.saveAndFlush(pep);
-            GroupMember groupMember = new GroupMember(user, pepGroup);
-            groupMemberRepository.saveAndFlush(groupMember);
-            response.addProperty("pepGroupId",pepGroup.getPepGroupID());
-            response.addProperty("pepGroupName", pepGroup.getPepGroupName());
-            response.addProperty("owner", pepGroup.getOwner().getUserId());
-            List<GroupMember> groupMembers = groupMemberRepository.findByPepGroup(pepGroup);
-            response.addProperty("members", gson.toJson(groupMembers.stream().map(groupMember1 -> groupMember1.getUser().getUserId()).toArray()));
-        } else {
-            long pepGroupId = object.get("pepGroupID").getAsLong();
-            PEPGroup pepGroup = pepGroupRepository.findOne(pepGroupId);
-            pep.setPepGroup(pepGroup);
-            pepRepository.saveAndFlush(pep);
-            response.addProperty("pepGroupId",pepGroup.getPepGroupID());
-            response.addProperty("pepGroupName", pepGroup.getPepGroupName());
-            response.addProperty("owner", pepGroup.getOwner().getUserId());
-            List<GroupMember> groupMembers = groupMemberRepository.findByPepGroup(pepGroup);
-            response.addProperty("members", gson.toJson(groupMembers.stream().map(groupMember1 -> groupMember1.getUser().getUserId()).toArray()));
+        try {
+            response = pepRegisterService.addPEPtoPEPGroup(object).get();
+            return gson.toJson(response);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            response = new JsonObject();
+            response.addProperty("error" , "ToJson error");
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+            response = new JsonObject();
+            response.addProperty("error" , "ToJson error");
         }
-
         return gson.toJson(response);
     }
 
-    @RequestMapping(name = "/groups/{userID}/{pepID}", method = RequestMethod.GET)
+
+
+    @RequestMapping(value = "/groups/{userID}/{pepID}", method = RequestMethod.GET)
     public @ResponseBody String searchPEPGroup(@PathVariable String userID, @PathVariable String pepID) {
         Gson gson = new GsonBuilder().create();
-        User user = userRepository.findOne(userID);
-        PEP pep = pepRepository.findOne(pepID);
-        JsonObject response = new JsonObject();
-        if (user == null) {
-            response.addProperty("error", "wrong user");
-        } else if (pep.getPepGroup() != null) {
-            PEPGroup pepGroup = pepGroupRepository.findByOwnerAndPEP(user, pep);
-            response.addProperty("hasGroup", true);
-            response.addProperty("pepGroup", pepGroup.getPepGroupID());
-        } else {
-            response.addProperty("hasGroup", false);
-            List<PEPGroup> pepGroups = pepGroupRepository.findPEPGroupsByOwner(user);
-            response.addProperty("pepGroupID", gson.toJson(pepGroups.stream().map(pepGroup -> pepGroup.getPepGroupID()).toArray()));
+        JsonObject response = null;
+        try {
+            response = pepRegisterService.searchPEPGroup(userID, pepID).get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            response = new JsonObject();
+            response.addProperty("error" , "ToJson error");
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+            response = new JsonObject();
+            response.addProperty("error" , "ToJson error");
         }
         return gson.toJson(response);
     }
