@@ -23,7 +23,7 @@ class RequestParser{
     public void setRequest(HttpServletRequest request){
         try {
             String requestText = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
-            json = gson.fromJson(requestText, JsonObject.class);
+            json = gson.fromJson(requestText, JsonElement.class);
         } catch (IOException e) {
             e.printStackTrace();
         }
