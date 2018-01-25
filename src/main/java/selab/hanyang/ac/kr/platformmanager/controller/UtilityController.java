@@ -29,7 +29,7 @@ public class UtilityController {
     }
 
     private String getPEPGroups(String owner){
-        List<PEPGroup> groups = pepGrpRepo.findByOwner(owner);
+        List<PEPGroup> groups = pepGrpRepo.findPEPGroupsByOwner_UserId(owner);
         return new Gson().toJson(groups);
     }
 

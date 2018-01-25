@@ -9,11 +9,14 @@ import selab.hanyang.ac.kr.platformmanager.database.model.User;
 
 import java.util.List;
 
-public interface PEPGroupRepository extends JpaRepository<PEPGroup, String> {
-
-    List<PEPGroup> findByOwner(String owner);
+public interface PEPGroupRepository extends JpaRepository<PEPGroup, Long>{
 
     @Query("select pg from PEP p join p.pepGroup pg where p.pepId=:#{#pep.pepId} and pg.owner.userId=:#{#owner.userId}")
-    PEPGroup findByOwnerAndPEP(@Param("owner") User owner, @Param("pep") PEP pep);
+    PEPGroup findByOwnerAndPEP(@Param("owner")User owner, @Param("pep") PEP pep);
+
+
+    List<PEPGroup> findPEPGroupsByOwner(User owner);
+
+    List<PEPGroup> findPEPGroupsByOwner_UserId(String owner);
 
 }

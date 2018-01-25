@@ -4,8 +4,8 @@ import java.io.Serializable;
 
 public class GroupMemberId implements Serializable{
 
-    public User user;
+    public String user;
 
-    public PEPGroup pepGroup;
+    public long pepGroup;
 
 }
