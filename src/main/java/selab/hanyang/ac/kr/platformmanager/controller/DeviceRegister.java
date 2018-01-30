@@ -1,5 +1,6 @@
 package selab.hanyang.ac.kr.platformmanager.controller;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,15 +26,6 @@ import java.util.stream.Stream;
 @Controller
 public class DeviceRegister {
 
-    /*
-    *  pepID:"aaa" //url로
-    *  devices: key 생략.
-    *  [
-    *       {...},
-    *       {...}
-    *  ]
-    * */
-
     @Autowired
     private PEPRepository pepRepo;
 
@@ -53,21 +45,22 @@ public class DeviceRegister {
         PEP pep = pepRepo.findOneByPepId(pepID);
         boolean success = updateDevice(pep, devices);
 
-        // ack/nak 메시지 - 추후 형식에 맞게 수정
+        // TODO: ack/nak 메시지 - 추후 형식에 맞게 수정
         return success ? "Ack":"Nak";
     }
 
     // 해당 pep에 대한 device들 DB에 추가(Device)
     private boolean updateDevice(PEP pep, List<JsonObject> devices) {
-        Stream<Device> ds = devices.stream().map(dev -> {
+        devices.stream().forEachOrdered(dev -> {
             String devID = dev.get("deviceID").getAsString();
             String devName = dev.get("deviceName").getAsString();
-            Device device = new Device(devID, devName, pep, ""); // 새 Device 객체 생성
+            // TODO: profile에 내용 정하기
+            Device device = new Device(devID, devName, pep, "생략"); // 새 Device 객체 생성
+            devRepo.save(device); //DB에 저장
+
             List<JsonObject> actions = RequestParser.mapToObject(dev.get("actions").getAsJsonArray()); // 해당 Device의 액션들
             updateDeviceAction(device, actions);
-            return device;
         });
-        devRepo.save(ds.collect(Collectors.toList()));
         return true;
     }
 
@@ -76,7 +69,7 @@ public class DeviceRegister {
         Stream<DeviceAction> as = actions.stream().map(act -> {
             String actionID = act.get("actionID").getAsString();  // DeviceAction.actionID
             String actionName = act.get("actionName").getAsString(); // DeviceAction.actionName
-            JsonObject params = act.get("params").getAsJsonObject(); // DeviceAction.params
+            JsonArray params = act.get("params").getAsJsonArray(); // DeviceAction.params
             DeviceAction action = new DeviceAction(actionID, actionName, device, params.toString());
             return action;
         });

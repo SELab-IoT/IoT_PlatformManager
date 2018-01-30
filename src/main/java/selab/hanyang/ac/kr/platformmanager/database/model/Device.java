@@ -20,6 +20,8 @@ public class Device {
     @Column(name = "profile")
     private String profile;
 
+    private Device(){}
+
     public Device(String devID, String devName, PEP pep, String profile) {
         this.deviceId = devID;
         this.deviceName = devName;
