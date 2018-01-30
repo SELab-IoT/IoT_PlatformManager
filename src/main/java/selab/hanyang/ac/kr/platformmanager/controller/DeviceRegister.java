@@ -19,8 +19,6 @@ import selab.hanyang.ac.kr.platformmanager.database.repository.PEPRepository;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 //윤근
 @Controller
@@ -51,7 +49,7 @@ public class DeviceRegister {
 
     // 해당 pep에 대한 device들 DB에 추가(Device) - PEPRegister 에서도 사용
     public boolean updateDevice(PEP pep, List<JsonObject> devices) {
-        devices.stream().forEachOrdered(dev -> {
+        devices.forEach(dev -> {
             String devID = dev.get("deviceID").getAsString();
             String devName = dev.get("deviceName").getAsString();
 
@@ -68,13 +66,12 @@ public class DeviceRegister {
 
     // 해당 device에 대한 action들 DB에 추가(DeviceAction)
     private boolean updateDeviceAction(Device device, List<JsonObject> actions) {
-        Stream<DeviceAction> as = actions.stream().map(act -> {
+        actions.forEach(act -> {
             String actionID = act.get("actionID").getAsString();  // DeviceAction.actionID
             String actionName = act.get("actionName").getAsString(); // DeviceAction.actionName
             JsonArray params = act.get("params").getAsJsonArray(); // DeviceAction.params
-            return new DeviceAction(actionID, actionName, device, params.toString());
+            devActRepo.save(new DeviceAction(actionID, actionName, device, params.toString()));
         });
-        devActRepo.save(as.collect(Collectors.toList()));
         return true;
     }
 
