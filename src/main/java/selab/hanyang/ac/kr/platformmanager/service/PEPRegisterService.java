@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
+import selab.hanyang.ac.kr.platformmanager.controller.DeviceRegister;
 import selab.hanyang.ac.kr.platformmanager.database.model.GroupMember;
 import selab.hanyang.ac.kr.platformmanager.database.model.PEP;
 import selab.hanyang.ac.kr.platformmanager.database.model.PEPGroup;
@@ -17,6 +18,7 @@ import selab.hanyang.ac.kr.platformmanager.database.repository.PEPGroupRepositor
 import selab.hanyang.ac.kr.platformmanager.database.repository.PEPRepository;
 import selab.hanyang.ac.kr.platformmanager.database.repository.UserRepository;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Future;
 
@@ -90,8 +92,14 @@ public class PEPRegisterService {
         PEP pep = pepRepository.findOneByPepId(pepID);
         pep.setIp(pepProfileJson.get("ip").getAsString());
         JsonArray deviceProfiles = pepProfileJson.getAsJsonArray("deviceProfiles");
+        List<JsonObject> devices = new LinkedList<>();
+        deviceProfiles.forEach(jsonElement -> {
+            devices.add(jsonElement.getAsJsonObject());
+        });
 
         //TODO: deviceProfiles 저장 (DeviceRegister 완료 후 수정)
+        DeviceRegister deviceRegister = new DeviceRegister();
+        deviceRegister.updateDevice(pep, devices);
 
         return new AsyncResult<>(response);
     }
