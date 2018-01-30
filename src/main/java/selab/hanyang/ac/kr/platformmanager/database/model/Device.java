@@ -17,13 +17,11 @@ public class Device {
     @JoinColumn(name = "pep_id")
     private PEP pep;
 
-    @Column(name = "profile")
-    private String profile;
+    private Device(){}
 
-    public Device(String devID, String devName, PEP pep, String profile) {
+    public Device(String devID, String devName, PEP pep) {
         this.deviceId = devID;
         this.deviceName = devName;
         this.pep = pep;
-        this.profile = profile;
     }
 }
