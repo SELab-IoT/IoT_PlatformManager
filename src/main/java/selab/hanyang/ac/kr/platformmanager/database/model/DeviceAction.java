@@ -6,6 +6,9 @@ import javax.persistence.*;
 @Table(name = "device_action")
 public class DeviceAction {
 
+
+    private DeviceAction(){}
+
     public DeviceAction(String actionID, String actionName, Device device, String params){
         this.actionID = actionID;
         this.actionName = actionName;
