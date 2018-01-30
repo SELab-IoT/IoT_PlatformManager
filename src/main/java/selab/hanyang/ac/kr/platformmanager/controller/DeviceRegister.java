@@ -49,16 +49,18 @@ public class DeviceRegister {
         return success ? "Ack":"Nak";
     }
 
-    // 해당 pep에 대한 device들 DB에 추가(Device)
-    private boolean updateDevice(PEP pep, List<JsonObject> devices) {
+    // 해당 pep에 대한 device들 DB에 추가(Device) - PEPRegister 에서도 사용
+    public boolean updateDevice(PEP pep, List<JsonObject> devices) {
         devices.stream().forEachOrdered(dev -> {
             String devID = dev.get("deviceID").getAsString();
             String devName = dev.get("deviceName").getAsString();
-            // TODO: profile에 내용 정하기
-            Device device = new Device(devID, devName, pep, "생략"); // 새 Device 객체 생성
-            devRepo.save(device); //DB에 저장
 
-            List<JsonObject> actions = RequestParser.mapToObject(dev.get("actions").getAsJsonArray()); // 해당 Device의 액션들
+            //Device DB에 저장
+            Device device = new Device(devID, devName, pep);
+            devRepo.save(device);
+
+            //DeviceAction DB에 저장
+            List<JsonObject> actions = RequestParser.mapToObject(dev.get("actions").getAsJsonArray());
             updateDeviceAction(device, actions);
         });
         return true;
@@ -70,8 +72,7 @@ public class DeviceRegister {
             String actionID = act.get("actionID").getAsString();  // DeviceAction.actionID
             String actionName = act.get("actionName").getAsString(); // DeviceAction.actionName
             JsonArray params = act.get("params").getAsJsonArray(); // DeviceAction.params
-            DeviceAction action = new DeviceAction(actionID, actionName, device, params.toString());
-            return action;
+            return new DeviceAction(actionID, actionName, device, params.toString());
         });
         devActRepo.save(as.collect(Collectors.toList()));
         return true;
