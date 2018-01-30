@@ -1,14 +1,17 @@
 package selab.hanyang.ac.kr.platformmanager.controller;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import selab.hanyang.ac.kr.platformmanager.database.model.PEP;
 import selab.hanyang.ac.kr.platformmanager.database.model.PEPGroup;
-import selab.hanyang.ac.kr.platformmanager.database.repository.PEPGroupRepository;
+import selab.hanyang.ac.kr.platformmanager.database.repository.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
@@ -20,17 +23,80 @@ public class UtilityController {
     @Autowired
     PEPGroupRepository pepGrpRepo;
 
+    @Autowired
+    PEPRepository pepRepo;
+
+    @Autowired
+    DeviceRepository devRepo;
+
+    @Autowired
+    DeviceActionRepository devActRepo;
+
     // 조회 기능
     @RequestMapping(value = "pep-group/profile/{userID}", method = RequestMethod.GET)
     public @ResponseBody
     String getPEPGroups(@PathVariable String userID, HttpServletResponse httpResponse){
-        String groups = getPEPGroups(userID);
-        return groups;
-    }
 
-    private String getPEPGroups(String owner){
-        List<PEPGroup> groups = pepGrpRepo.findPEPGroupsByOwner_UserId(owner);
-        return new Gson().toJson(groups);
+        JsonArray groups = new JsonArray();
+
+        // 1. 해당 유저가 속한 pepGroup들 가져와서
+        List<PEPGroup> grps = pepGrpRepo.findByUserId(userID);
+        grps.forEach(grp->{
+
+            // 2. Group 정보 꺼내고
+            long pepGroupID = grp.getPepGroupID();
+            JsonArray pepProfiles = new JsonArray();
+
+            // A ~ D : pepProfiles 만들기
+            // A. pepGroup에 속하는 pep들 가져와서
+            List<PEP> peps = pepRepo.findByPepGroupId_PepGroupId(pepGroupID);
+            peps.forEach(pep->{
+
+                // B. 정보 꺼내고
+                String ip = pep.getIp();
+                JsonArray devProfiles = new JsonArray();
+
+                // a ~ d : devProfiles 만들기
+                // a. pep에 속하는 device들 가져와서
+                devRepo.findByPepId(pep)
+                       .forEach(dev->{
+                            // b. 정보 꺼내고
+                            String devId = dev.getId();
+                            String devName = dev.getName();
+                            JsonArray actions = new Gson().toJsonTree(devActRepo.findByDeviceId(dev)).getAsJsonArray();
+
+                            // c. devProfile 만들어주고
+                            JsonObject devProfile = new JsonObject();
+                            devProfile.addProperty("deviceID", devId);
+                            devProfile.addProperty("deviceName", devName);
+                            devProfile.add("actions", actions);
+
+                            // d. JsonArray에 각각 추가
+                            devProfiles.add(devProfile);
+                       });
+
+                // C. pepProfile 만들어주고
+                JsonObject pepProfile = new JsonObject();
+                pepProfile.addProperty("ip", ip);
+                pepProfile.add("deviceProfiles", devProfiles);
+
+                // D. JsonArray에 각각 추가
+                pepProfiles.add(pepProfile);
+
+            });
+
+            // 3. group 만들어주고
+            JsonObject group = new JsonObject();
+            group.addProperty("pepGroupID", pepGroupID);
+            group.add("pepProfiles",pepProfiles);
+
+            // 4. JsonArray에 각각 추가
+            groups.add(group);
+
+        });
+
+        System.out.println(groups.toString());//디버그코드
+        return groups.toString();
     }
 
 }
