@@ -97,7 +97,6 @@ public class PEPRegisterService {
             devices.add(jsonElement.getAsJsonObject());
         });
 
-        //TODO: deviceProfiles 저장 (DeviceRegister 완료 후 수정)
         DeviceRegister deviceRegister = new DeviceRegister();
         deviceRegister.updateDevice(pep, devices);
 

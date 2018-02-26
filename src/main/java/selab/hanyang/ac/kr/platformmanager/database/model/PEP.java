@@ -11,21 +11,21 @@ public class PEP {
 
     @Id
     @Column(name = "pep_id", nullable = false)
-    private String pepId;
+    public String pepId;
 
     @Column(name = "pep_name")
-    private String pepName;
+    public String pepName;
 
     @ManyToOne
     @JoinColumn(name = "pep_group_id")
-    private PEPGroup pepGroup;
+    public PEPGroup pepGroup;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "pdp_id")
-    private PDP pdp;
+    public PDP pdp;
 
     @Column(name = "ip")
-    private String ip;
+    public String ip;
 
     public String getId() {
         return pepId;
