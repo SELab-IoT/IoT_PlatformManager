@@ -7,5 +7,5 @@ import selab.hanyang.ac.kr.platformmanager.database.model.DeviceAction;
 import java.util.List;
 
 public interface DeviceActionRepository extends JpaRepository<DeviceAction, String> {
-    List<DeviceAction> findByDeviceId(Device deviceId);
+    List<DeviceAction> findByDevice(Device device);
 }

@@ -12,13 +12,13 @@ import java.util.List;
 public interface PEPGroupRepository extends JpaRepository<PEPGroup, Long>{
 
     @Query("select pg from PEP p join p.pepGroup pg where p.pepId=:#{#pep.pepId} and pg.owner.userId=:#{#owner.userId}")
-    PEPGroup findByOwnerAndPEP(@Param("owner")User owner, @Param("pep") PEP pep);
+    PEPGroup findByOwnerAndPEP(@Param("owner")User owner, @Param("pep")PEP pep);
 
-    @Query("select * from GroupMember join PEPGroup where userId = :userId")
-    List<PEPGroup> findByUserId(@Param("userId")String userId);
+    @Query("SELECT pg FROM GroupMember gm JOIN gm.pepGroup pg WHERE userId = ?#{[0]}")
+    List<PEPGroup> findPEPGroupsByUserId(String userId);
 
-    List<PEPGroup> findByOwner(User owner);
+    List<PEPGroup> findPEPGroupsByOwner(User owner);
 
-    List<PEPGroup> findByOwner_UserId(String userId);
+    List<PEPGroup> findByOwner_UserId(String ownerId);
 
 }
