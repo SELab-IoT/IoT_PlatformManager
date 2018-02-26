@@ -9,14 +9,9 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import selab.hanyang.ac.kr.platformmanager.controller.DeviceRegister;
-import selab.hanyang.ac.kr.platformmanager.database.model.GroupMember;
-import selab.hanyang.ac.kr.platformmanager.database.model.PEP;
-import selab.hanyang.ac.kr.platformmanager.database.model.PEPGroup;
-import selab.hanyang.ac.kr.platformmanager.database.model.User;
-import selab.hanyang.ac.kr.platformmanager.database.repository.GroupMemberRepository;
-import selab.hanyang.ac.kr.platformmanager.database.repository.PEPGroupRepository;
-import selab.hanyang.ac.kr.platformmanager.database.repository.PEPRepository;
-import selab.hanyang.ac.kr.platformmanager.database.repository.UserRepository;
+import selab.hanyang.ac.kr.platformmanager.controller.OTP;
+import selab.hanyang.ac.kr.platformmanager.database.model.*;
+import selab.hanyang.ac.kr.platformmanager.database.repository.*;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -36,6 +31,9 @@ public class PEPRegisterService {
 
     @Autowired
     GroupMemberRepository groupMemberRepository;
+
+    @Autowired
+    SessionKeyRespository sessionKeyRespository;
 
     @Async
     public Future<JsonObject> addPEPtoPEPGroup(JsonObject object) {
@@ -72,7 +70,7 @@ public class PEPRegisterService {
             response.addProperty("pepGroup", pepGroup.getPepGroupID());
         } else {
             response.addProperty("hasGroup", false);
-            List<PEPGroup> pepGroups = pepGroupRepository.findPEPGroupsByOwner(user);
+            List<PEPGroup> pepGroups = pepGroupRepository.findByOwner(user);
             response.addProperty("pepGroupID", gson.toJson(pepGroups.stream().map(pepGroup -> pepGroup.getPepGroupID()).toArray()));
         }
 
@@ -114,12 +112,18 @@ public class PEPRegisterService {
         PEPGroup pepGroup = pepGroupRepository.findOne(pepGroupId);
         pep.setPepGroup(pepGroup);
         pepRepository.saveAndFlush(pep);
-        returnSessionKey(response);
+        try {
+            returnSessionKey(pep.pepId, response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.addProperty("error", "can't create sessionKey");
+        }
     }
 
-    //TODO: 실제 세션키로 변경 필요
-    private void returnSessionKey(JsonObject response) {
-        response.addProperty("sessionKey", "asdf");
+    private void returnSessionKey(String pepID, JsonObject response) throws Exception {
+        String otpKey = OTP.create(pepID);
+        sessionKeyRespository.save(new SessionKey(pepID, otpKey));
+        response.addProperty("sessionKey", otpKey);
     }
 
     private void createAndAddGroup(JsonObject object, User user, PEP pep, JsonObject response) {
@@ -130,7 +134,12 @@ public class PEPRegisterService {
         pepRepository.saveAndFlush(pep);
         GroupMember groupMember = new GroupMember(user, pepGroup);
         groupMemberRepository.saveAndFlush(groupMember);
-        returnSessionKey(response);
+        try {
+            returnSessionKey(pep.pepId, response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.addProperty("error", "can't create sessionKey");
+        }
     }
 
     private void addGroupMember(JsonObject object, User user, PEP pep, JsonObject response) {
