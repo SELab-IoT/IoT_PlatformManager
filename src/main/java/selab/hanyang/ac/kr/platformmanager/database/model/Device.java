@@ -6,6 +6,14 @@ import javax.persistence.*;
 @Table(name = "device")
 public class Device {
 
+    public String getId() {
+        return deviceId;
+    }
+
+    public String getName() {
+        return deviceName;
+    }
+
     @Id
     @Column(name = "device_id")
     private String deviceId;

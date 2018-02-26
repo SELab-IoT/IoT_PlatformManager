@@ -14,9 +14,11 @@ public interface PEPGroupRepository extends JpaRepository<PEPGroup, Long>{
     @Query("select pg from PEP p join p.pepGroup pg where p.pepId=:#{#pep.pepId} and pg.owner.userId=:#{#owner.userId}")
     PEPGroup findByOwnerAndPEP(@Param("owner")User owner, @Param("pep") PEP pep);
 
+    @Query("select * from GroupMember join PEPGroup where userId = :userId")
+    List<PEPGroup> findByUserId(@Param("userId")String userId);
 
-    List<PEPGroup> findPEPGroupsByOwner(User owner);
+    List<PEPGroup> findByOwner(User owner);
 
-    List<PEPGroup> findPEPGroupsByOwner_UserId(String owner);
+    List<PEPGroup> findByOwner_UserId(String userId);
 
 }
