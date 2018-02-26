@@ -40,7 +40,7 @@ public class UtilityController {
         JsonArray groups = new JsonArray();
 
         // 1. 해당 유저가 속한 pepGroup들 가져와서
-        List<PEPGroup> grps = pepGrpRepo.findByUserId(userID);
+        List<PEPGroup> grps = pepGrpRepo.findPEPGroupsByUserId(userID);
         grps.forEach(grp->{
 
             // 2. Group 정보 꺼내고
@@ -49,7 +49,7 @@ public class UtilityController {
 
             // A ~ D : pepProfiles 만들기
             // A. pepGroup에 속하는 pep들 가져와서
-            List<PEP> peps = pepRepo.findByPepGroupId_PepGroupId(pepGroupID);
+            List<PEP> peps = pepRepo.findByGroupId(pepGroupID);
             peps.forEach(pep->{
 
                 // B. 정보 꺼내고
@@ -58,12 +58,12 @@ public class UtilityController {
 
                 // a ~ d : devProfiles 만들기
                 // a. pep에 속하는 device들 가져와서
-                devRepo.findByPepId(pep)
+                devRepo.findByPep(pep)
                        .forEach(dev->{
                             // b. 정보 꺼내고
                             String devId = dev.getId();
                             String devName = dev.getName();
-                            JsonArray actions = new Gson().toJsonTree(devActRepo.findByDeviceId(dev)).getAsJsonArray();
+                            JsonArray actions = new Gson().toJsonTree(devActRepo.findByDevice(dev)).getAsJsonArray();
 
                             // c. devProfile 만들어주고
                             JsonObject devProfile = new JsonObject();

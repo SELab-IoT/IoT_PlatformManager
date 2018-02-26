@@ -25,7 +25,7 @@ public class Device {
     @JoinColumn(name = "pep_id")
     private PEP pep;
 
-    private Device(){}
+    public Device(){}
 
     public Device(String devID, String devName, PEP pep) {
         this.deviceId = devID;

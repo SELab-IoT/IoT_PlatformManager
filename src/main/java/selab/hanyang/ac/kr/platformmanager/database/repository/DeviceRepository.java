@@ -7,5 +7,5 @@ import selab.hanyang.ac.kr.platformmanager.database.model.PEP;
 import java.util.List;
 
 public interface DeviceRepository extends JpaRepository<Device, String> {
-    List<Device> findByPepId(PEP pepId);
+    List<Device> findByPep(PEP pep);
 }
