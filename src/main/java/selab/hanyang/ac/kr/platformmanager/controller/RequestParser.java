@@ -19,6 +19,11 @@ class RequestParser{
         setRequest(request);
     }
 
+    public RequestParser(String request){
+        this.gson = new GsonBuilder().create();
+        setRequest(request);
+    }
+
     // request 설정
     public void setRequest(HttpServletRequest request){
         try {
@@ -27,6 +32,12 @@ class RequestParser{
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    // request 설정
+    public void setRequest(String request){
+        String requestText = request;
+        json = gson.fromJson(requestText, JsonElement.class);
     }
 
     // get full JsonElement
