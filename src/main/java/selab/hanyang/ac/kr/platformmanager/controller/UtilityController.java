@@ -5,10 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import selab.hanyang.ac.kr.platformmanager.database.model.PEP;
 import selab.hanyang.ac.kr.platformmanager.database.model.PEPGroup;
 import selab.hanyang.ac.kr.platformmanager.database.repository.*;
@@ -33,7 +30,8 @@ public class UtilityController {
     DeviceActionRepository devActRepo;
 
     // 조회 기능
-    @RequestMapping(value = "pep-group/profile/{userID}", method = RequestMethod.GET)
+    @CrossOrigin(origins = "http://localhost")
+    @GetMapping("/pep-group/profile/{userID}")
     public @ResponseBody
     String getPEPGroups(@PathVariable String userID, HttpServletResponse httpResponse){
 
