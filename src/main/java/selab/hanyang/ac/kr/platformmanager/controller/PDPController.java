@@ -2,10 +2,7 @@ package selab.hanyang.ac.kr.platformmanager.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.wso2.balana.ctx.xacml3.RequestCtx;
 import selab.hanyang.ac.kr.platformmanager.pdp.PDPInterface;
 import selab.hanyang.ac.kr.platformmanager.pdp.XACMLConverter;
@@ -21,7 +18,8 @@ public class PDPController {
     @Autowired
     PDPInterface pdpInterface;
 
-    @RequestMapping(value = "evaluate", method = RequestMethod.POST)
+    @CrossOrigin(origins = "http://localhost")
+    @PostMapping("/evaluate")
     public @ResponseBody
     String evaluatePolicyRequest(HttpServletRequest request, HttpServletResponse httpResponse) {
         RequestParser parser = new RequestParser(request);
@@ -53,7 +51,8 @@ public class PDPController {
         return !(requestBody == null) ? pdpInterface.evaluate(requestBody, pepId) : null;
     }
 
-    @RequestMapping(value = "reload", method = RequestMethod.POST)
+    @CrossOrigin(origins = "http://localhost")
+    @PostMapping("/reload")
     public @ResponseBody String reloadPDP(HttpServletRequest request, HttpServletResponse httpResponse) {
 
         RequestParser parser = new RequestParser(request);

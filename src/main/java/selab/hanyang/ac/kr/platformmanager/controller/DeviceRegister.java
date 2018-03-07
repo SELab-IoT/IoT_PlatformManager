@@ -4,10 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import selab.hanyang.ac.kr.platformmanager.database.model.Device;
 import selab.hanyang.ac.kr.platformmanager.database.model.DeviceAction;
 import selab.hanyang.ac.kr.platformmanager.database.model.PEP;
@@ -33,9 +30,10 @@ public class DeviceRegister {
     private DeviceActionRepository devActRepo;
 
     // Device 등록 기능
-    @RequestMapping(value = "devices/{pepID}", method = RequestMethod.POST)
+    @CrossOrigin(origins = "http://localhost")
+    @PostMapping("devices/{pepID}")
     public @ResponseBody
-    String updateDevice(@PathVariable String pepID, HttpServletRequest request, HttpServletResponse httpResponse){
+    String updateDevice(@PathVariable String pepID, @RequestBody String request, HttpServletResponse httpResponse){
 
         RequestParser parser = new RequestParser(request);
         List<JsonObject> devices = RequestParser.mapToObject(parser.getAsJsonArray());
@@ -43,7 +41,7 @@ public class DeviceRegister {
         boolean success = updateDevice(pep, devices);
 
         // TODO: ack/nak 메시지 - 추후 형식에 맞게 수정
-        return success ? "Ack":"Nak";
+        return success ? "{\"response\":\"Ack\"}":"{\"response\":\"Nak\"}";
     }
 
     // 해당 pep에 대한 device들 DB에 추가(Device) - PEPRegister 에서도 사용

@@ -6,5 +6,5 @@ public class GroupMemberId implements Serializable{
 
     public String user;
     public long pepGroup;
-    
+
 }

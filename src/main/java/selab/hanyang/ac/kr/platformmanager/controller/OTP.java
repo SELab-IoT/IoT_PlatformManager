@@ -6,7 +6,6 @@ import java.util.Date;
 
 public class OTP {
 
-
     private String key;
     private static final long DISTANCE = 30000;
     private static final String ALGORITHM = "HmacSHA256";

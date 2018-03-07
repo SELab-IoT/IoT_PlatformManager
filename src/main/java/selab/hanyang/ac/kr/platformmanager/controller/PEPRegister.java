@@ -5,10 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import selab.hanyang.ac.kr.platformmanager.database.repository.GroupMemberRepository;
 import selab.hanyang.ac.kr.platformmanager.database.repository.PEPGroupRepository;
 import selab.hanyang.ac.kr.platformmanager.database.repository.PEPRepository;
@@ -16,7 +13,9 @@ import selab.hanyang.ac.kr.platformmanager.database.repository.UserRepository;
 import selab.hanyang.ac.kr.platformmanager.service.PEPRegisterService;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 @Controller
 public class PEPRegister {
@@ -36,9 +35,10 @@ public class PEPRegister {
     @Autowired
     PEPRegisterService pepRegisterService;
 
+    @CrossOrigin(origins = "http://localhost")
+    @PostMapping(path = "/groups", consumes = "application/json", produces = "application/json")
+    public @ResponseBody String addPEPtoPEPGroup(@RequestBody String request) {
 
-    @RequestMapping(value = "/groups", method = RequestMethod.POST)
-    public @ResponseBody String addPEPtoPEPGroup(HttpServletRequest request) {
         RequestParser parser = new RequestParser(request);
         JsonObject object = parser.getAsJsonObject();
         JsonObject response = null;
@@ -59,8 +59,8 @@ public class PEPRegister {
     }
 
 
-
-    @RequestMapping(value = "/groups/{userID}/{pepID}", method = RequestMethod.GET)
+    @CrossOrigin(origins = "http://localhost")
+    @GetMapping(path="/groups/{userID}/{pepID}", produces = "application/json")
     public @ResponseBody String searchPEPGroup(@PathVariable String userID, @PathVariable String pepID) {
         Gson gson = new GsonBuilder().create();
         JsonObject response = null;
