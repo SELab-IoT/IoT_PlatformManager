@@ -1,0 +1,42 @@
+﻿# 1. 로그인 sha3-256("passwd") - 회원가입은 되어있다고 가정, 아직 미구현
+POST
+/login
+{
+  "userID" : "frebern",
+  "userPW" : "0ab9c05e449543077590b6e54da3b7781c43bf40a8bc66bd19d19340cb5936e8"
+}
+
+# 5. PEP Group 조회 /groups/{userID}/{pepID}
+GET
+/groups/frebern/pep1
+{
+}
+
+# 7a1 ~ 9a(세션키 반환받음) sha3-256("passwd")
+POST
+/groups
+{
+  "userID" : "frebern",
+  "pepGroupID" : 2,
+  "pepGroupPW" : "0ab9c05e449543077590b6e54da3b7781c43bf40a8bc66bd19d19340cb5936e8",
+  "pepGroupName" : "pepGroup1",
+  "pepID" : "pep1"
+}
+
+# 7a2 ~ 9a(세션키 반환받음)
+POST
+/groups
+{
+  "userID" : "frebern",
+  "pepGroupID" : 2,
+  "pepID" : "pep1"
+}
+
+# 7b ~ 9b(Ack 혹은 Nak 반환받음) sha3-256("passwd")
+POST
+/groups
+{
+  "userID" : "frebern",
+  "groupPW" : "0ab9c05e449543077590b6e54da3b7781c43bf40a8bc66bd19d19340cb5936e8",
+  "pepGroupID" : 2
+}
