@@ -70,7 +70,7 @@ public class PEPRegisterService {
             response.addProperty("pepGroup", pepGroup.getPepGroupID());
         } else {
             response.addProperty("hasGroup", false);
-            List<PEPGroup> pepGroups = pepGroupRepository.findByOwner(user);
+            List<PEPGroup> pepGroups = pepGroupRepository.findPEPGroupsByOwner(user);
             response.addProperty("pepGroupID", gson.toJson(pepGroups.stream().map(pepGroup -> pepGroup.getPepGroupID()).toArray()));
         }
 
