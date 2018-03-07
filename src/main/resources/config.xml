@@ -1,6 +1,6 @@
-<config defaultPDP="pdp" defaultAttributeFactory="attr"
+<config defaultPDP="pdp1" defaultAttributeFactory="attr"
         defaultCombiningAlgFactory="comb" defaultFunctionFactory="func">
-    <pdp name="pdp">
+    <pdp name="pdp1">
         <policyFinderModule class="org.wso2.balana.finder.impl.FileBasedPolicyFinderModule">
             <set>
                 <string>src/main/resources/IntentConflictExamplePolicies</string>

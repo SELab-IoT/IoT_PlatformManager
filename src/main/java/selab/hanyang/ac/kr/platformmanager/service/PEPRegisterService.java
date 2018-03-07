@@ -40,7 +40,7 @@ public class PEPRegisterService {
     @Async
     public Future<JsonObject> addPEPtoPEPGroup(JsonObject object) {
         String userId = object.get("userID").getAsString();
-        String pepId = object.get("pepID").getAsString();
+        String pepId = object.get("pepID").getAsString(); // TODO: NullPointerException 발생
         User user = userRepository.findOne(userId);
         PEP pep = pepRepository.findOneByPepId(pepId);
         JsonObject response = new JsonObject();
@@ -66,7 +66,7 @@ public class PEPRegisterService {
         JsonObject response = new JsonObject();
         if (user == null) {
             response.addProperty("error", "wrong user");
-        } else if (pep.getPepGroup() != null) {
+        } else if (pep.getPepGroup() != null) { // TODO: NullPointerException 해결
             PEPGroup pepGroup = pepGroupRepository.findByOwnerAndPEP(user, pep);
             response.addProperty("hasGroup", true);
             response.addProperty("pepGroup", pepGroup.getPepGroupID());
