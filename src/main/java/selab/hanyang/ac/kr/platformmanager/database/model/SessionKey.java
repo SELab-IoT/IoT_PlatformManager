@@ -1,16 +1,17 @@
 package selab.hanyang.ac.kr.platformmanager.database.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.io.Serializable;
 
-@Entity
+@Entity @IdClass(SessionKeyId.class)
 @Table(name = "session_key")
-public class SessionKey {
+public class SessionKey{
 
+    @Id
     @Column
     public String pepID;
 
+    @Id
     @Column
     public String sessionKey;
 
