@@ -6,10 +6,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.servlet.http.HttpServletRequest;
-
 @Controller
-
 public class LoginController {
     @CrossOrigin(origins = "http://localhost")
     @PostMapping(path = "/login", consumes = "application/json", produces = "application/json")

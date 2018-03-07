@@ -1,5 +1,7 @@
 package selab.hanyang.ac.kr.platformmanager.database.model;
 
+import com.google.gson.JsonArray;
+
 import javax.persistence.*;
 import java.io.Serializable;
 
@@ -8,6 +10,6 @@ import java.io.Serializable;
 public class UserProfile {
 
     private String userName;
-    private String role;
+    private JsonArray role;
 
 }
