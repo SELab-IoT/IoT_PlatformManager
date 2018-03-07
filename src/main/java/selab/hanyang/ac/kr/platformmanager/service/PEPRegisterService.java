@@ -1,9 +1,6 @@
 package selab.hanyang.ac.kr.platformmanager.service;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
@@ -38,20 +35,21 @@ public class PEPRegisterService {
     @Async
     public Future<JsonObject> addPEPtoPEPGroup(JsonObject object) {
         String userId = object.get("userID").getAsString();
-        String pepId = object.get("pepID").getAsString(); // TODO: NullPointerException 발생
+        JsonElement pepId = object.get("pepID"); // TODO: NullPointerException 발생
+        JsonElement pepGroupId = object.get("pepGroupID");
         User user = userRepository.findOne(userId);
-        PEP pep = pepRepository.findOneByPepId(pepId);
         JsonObject response = new JsonObject();
         if (user == null) {
             response.addProperty("error", "Not found user");
-        } else if (pep == null) {
-            response.addProperty("error", "Not found pep");
-        } else if (pep.getPepGroup() != null) {
-            addGroupMember(object, user, pep, response);
-        } else if (object.get("pepGroupPW") != null) {
+        } else if (pepGroupId != null && pepId != null && object.get("pepGroupPW") != null) {
+            PEP pep = pepRepository.findOneByPepId(pepId.getAsString());
             createAndAddGroup(object, user, pep, response);
-        } else {
+        } else if (object.get("pepGroupPW") == null) {
+            PEP pep = pepRepository.findOneByPepId(pepId.getAsString());
             addGroup(object, pep, response);
+        }
+        else {
+            addGroupMember(object, user, pepGroupId.getAsLong(), response);
         }
         return new AsyncResult<>(response);
     }
@@ -64,6 +62,8 @@ public class PEPRegisterService {
         JsonObject response = new JsonObject();
         if (user == null) {
             response.addProperty("error", "wrong user");
+        } else if (pep == null) {
+            response.addProperty("error", "no pep");
         } else if (pep.getPepGroup() != null) { // TODO: NullPointerException 해결
             PEPGroup pepGroup = pepGroupRepository.findByOwnerAndPEP(user, pep);
             response.addProperty("hasGroup", true);
@@ -142,10 +142,11 @@ public class PEPRegisterService {
         }
     }
 
-    private void addGroupMember(JsonObject object, User user, PEP pep, JsonObject response) {
+    private void addGroupMember(JsonObject object, User user, long pepGroudID, JsonObject response) {
         String pepGroupPW = object.get("pepGroupPW").getAsString();
-        if (checkPEPGroupPW(pep.getPepGroup(), pepGroupPW)) {
-            GroupMember groupMember = new GroupMember(user, pep.getPepGroup());
+        PEPGroup pepGroup = pepGroupRepository.findOne(pepGroudID);
+        if (checkPEPGroupPW(pepGroup, pepGroupPW)) {
+            GroupMember groupMember = new GroupMember(user, pepGroup);
             groupMemberRepository.saveAndFlush(groupMember);
             response.addProperty("authenticated", true);
         } else {
