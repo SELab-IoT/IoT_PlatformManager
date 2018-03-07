@@ -15,6 +15,9 @@ public class SessionKey{
     @Column
     public String sessionKey;
 
+    public SessionKey() {
+    }
+
     public SessionKey(String pepID, String sessionKey) {
         this.pepID = pepID;
         this.sessionKey = sessionKey;

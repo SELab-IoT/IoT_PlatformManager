@@ -35,7 +35,7 @@ public class PEPRegisterService {
     @Async
     public Future<JsonObject> addPEPtoPEPGroup(JsonObject object) {
         String userId = object.get("userID").getAsString();
-        JsonElement pepId = object.get("pepID"); // TODO: NullPointerException 발생
+        JsonElement pepId = object.get("pepID");
         JsonElement pepGroupId = object.get("pepGroupID");
         User user = userRepository.findOne(userId);
         JsonObject response = new JsonObject();
@@ -44,12 +44,13 @@ public class PEPRegisterService {
         } else if (pepGroupId != null && pepId != null && object.get("pepGroupPW") != null) {
             PEP pep = pepRepository.findOneByPepId(pepId.getAsString());
             createAndAddGroup(object, user, pep, response);
-        } else if (object.get("pepGroupPW") == null) {
+        } else if (pepId == null) {
+            System.out.println("!!!");
+            addGroupMember(object, user, pepGroupId.getAsLong(), response);
+        } else {
+            System.out.println(pepId.getAsString());
             PEP pep = pepRepository.findOneByPepId(pepId.getAsString());
             addGroup(object, pep, response);
-        }
-        else {
-            addGroupMember(object, user, pepGroupId.getAsLong(), response);
         }
         return new AsyncResult<>(response);
     }
