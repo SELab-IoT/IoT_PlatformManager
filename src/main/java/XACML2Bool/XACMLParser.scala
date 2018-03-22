@@ -1,8 +1,14 @@
 package XACML2Bool
+import scala.xml._
+
+object Parser{
+  //if policyset --> PolicySet.parse()
+  //if policy --> Policy.parse()
+}
 
 class XACMLParser {
   def printHello = println("Hello!")
-  val policy = <Policy xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" PolicyId="ConflictFamilyPolicy"
+  var policy = <Policy xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" PolicyId="ConflictFamilyPolicy"
                   RuleCombiningAlgId="urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:deny-unless-permit" Version="1.0">
     <Target>
       <AnyOf>
@@ -58,11 +64,33 @@ class XACMLParser {
 
   def printX = {
 
-    println(policy.attributes)
-    println(policy.child)
-    println(policy.child.count(_=>true))
+    var p = policy.toString()
+    var q = scala.xml.XML.loadString(p);
+    // q = scala.xml.XML.load(url:URL) // URL로 파일에 접근하는 것도 가능한 듯
+
+    // \는 직계 자손중에서 찾고
+    // \\는 직계 아닌것도 다 찾음, 한개면 Elem, 여러개면 NodeSeq
+    // https://medium.com/@harittweets/working-with-xml-in-scala-bd6271a1e178
+
+    println("--1--")
+    println (q.getClass)
+    println("--2--")
+    println(q \ "Condition")
+    println("--3--")
+    println(q \\ "Condition")
+    println("--4--")
+    println(q \\ "Condition" \ "Apply")
+    println("--5--")
+    println(q \ "Condition" \ "Apply")
+    println("--6--")
+    println(q \ "AttributeDesignator")
+    println("--7--")
+    println(q \ "Apply")
+    println("--8--")
+    println(q \ "Target")
 
   }
+
 
 
 }

@@ -1,11 +1,22 @@
 package XACML2Bool
-
+import scala.xml._
 /** Boolean Expression의 문법 표현 후 sat4j에 알맞는 형태로 변환 **/
 
-sealed trait Term
+sealed trait Term {
+  def parse(term:Elem)
+}
 
 /* PolicySet, Policy, Rule */
-case class PolicySet(op: BOperator, policies: BOperator, policyCombAlg:String, effect: Boolean) extends Term
+case class PolicySet(target: Target , policies: BOperator, policyCombAlg:String, effect: Boolean) extends Term {
+  def parse(policySet: Elem) = {
+    val target = ???
+    val policyCombAlg = ???
+    val policies = policySet.nonEmptyChildren.foldRight[BOperator](???)(???)
+    val effect = ???
+
+    PolicySet(target, policies, policyCombAlg, effect)
+  }
+}
 case class Policy(target: Target, rules: BOperator, ruleCombAlg:String, effect: Boolean) extends Term
 case class Rule(target: Target, condition: Condition, effect: Boolean) extends Term
 
