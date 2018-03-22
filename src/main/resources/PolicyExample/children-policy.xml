@@ -1,0 +1,21 @@
+<PolicySet xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" PolicySetId="ChildrenPolicy"
+           PolicyCombiningAlgId="urn:oasis:names:tc:xacml:3.0:policy-combining-algorithm:deny-overrides" Version="1.0">
+    <Target>
+        <Subjects>
+            <SubjectMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:rfc822Name-match">
+                <AttributeValue DataType="urn:oasis:names:tc:xacml:1.0:data-type:rfc822Name">
+                    children
+                </AttributeValue>
+                <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id"
+                                            DataType="urn:oasis:names:tc:xacml:1.0:data-type:rfc822Name"/>
+            </SubjectMatch>
+        </Subjects>
+    </Target>
+
+    <PolicyIdReference>ChildrenGeneralPolicy</PolicyIdReference>
+    <PolicyIdReference>ChildrenGasStovePolicy</PolicyIdReference>
+    <PolicyIdReference>ChildrenFridgePolicy</PolicyIdReference>
+    <PolicyIdReference>ChildrenCupboardPolicy</PolicyIdReference>
+    <PolicyIdReference>ChildrenCookerPolicy</PolicyIdReference>
+
+</PolicySet>
