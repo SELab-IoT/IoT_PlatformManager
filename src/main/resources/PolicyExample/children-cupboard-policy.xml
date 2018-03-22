@@ -1,0 +1,26 @@
+<Policy xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" PolicyId="ChildrenCupboardPolicy"
+        RuleCombiningAlgId="urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:Deny-overrides" Version="1.0">
+    <Target>
+        <Subjects>
+            <SubjectMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:rfc822Name-match">
+                <AttributeValue DataType="urn:oasis:names:tc:xacml:1.0:data-type:rfc822Name">
+                    children
+                </AttributeValue>
+                <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id"
+                                            DataType="urn:oasis:names:tc:xacml:1.0:data-type:rfc822Name" />
+            </SubjectMatch>
+        </Subjects>
+        <Resources>
+            <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">
+                    cupboard
+                </AttributeValue>
+                <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:resource:target-namespace"
+                                             DataType="http://www.w3.org/2001/XMLSchema#string"/>
+            </ResourceMatch>
+        </Resources>
+    </Target>
+    <Rule RuleId="deny-rule" Effect="Deny">
+
+    </Rule>
+</Policy>

@@ -1,0 +1,42 @@
+<Policy xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" PolicyId="GuestFridgePolicy"
+        RuleCombiningAlgId="urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:Permit-overrides" Version="1.0">
+    <Target>
+        <Subjects>
+            <SubjectMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:rfc822Name-match">
+                <AttributeValue DataType="urn:oasis:names:tc:xacml:1.0:data-type:rfc822Name">
+                    guest
+                </AttributeValue>
+                <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id"
+                                            DataType="urn:oasis:names:tc:xacml:1.0:data-type:rfc822Name" />
+            </SubjectMatch>
+        </Subjects>
+        <Resources>
+            <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">
+                    fridge
+                </AttributeValue>
+                <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:resource:target-namespace"
+                                             DataType="http://www.w3.org/2001/XMLSchema#string"/>
+            </ResourceMatch>
+        </Resources>
+    </Target>
+    <Rule RuleId="permit-rule" Effect="Permit">
+        <Target>
+            <Actions>
+                <ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Put in</AttributeValue>
+                    <ActionAttributeDeisgnator DataType="http://www.w3.org/2001/XMLSchema#string"
+                                               AttributeId="FridgeAction"/>
+                </ActionMatch>
+            </Actions>
+        </Target>
+        <Condition>
+            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">drink</AttributeValue>
+                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+                    <AttributeDesignator AttributeId="food" Category="fridge" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+                </Apply>
+            </Apply>
+        </Condition>
+    </Rule>
+</Policy>
