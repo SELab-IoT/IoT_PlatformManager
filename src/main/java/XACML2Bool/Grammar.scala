@@ -3,21 +3,22 @@ import scala.xml._
 /** Boolean Expression의 문법 표현 후 sat4j에 알맞는 형태로 변환 **/
 
 sealed trait Term {
-  def parse(term:Elem)
+  def parse(term:Elem): Unit
+  def toString: String
 }
 
 /* PolicySet, Policy, Rule */
-case class PolicySet(target: Target , policies: BOperator, policyCombAlg:String, effect: Boolean) extends Term {
-  def parse(policySet: Elem) = {
+case class PolicySet(target: Target , policies: BOperator, policyCombAlg:String) extends Term {
+  override def parse(policySet: Elem) = {
     val target = ???
     val policyCombAlg = ???
-    val policies = policySet.nonEmptyChildren.foldRight[BOperator](???)(???)
-    val effect = ???
+    val policies = policySet.nonEmptyChildren.foldRight[BOperator](???)(???) //Combining Algorithm에 따라 달라짐
 
-    PolicySet(target, policies, policyCombAlg, effect)
+    PolicySet(target, policies, policyCombAlg)
   }
 }
-case class Policy(target: Target, rules: BOperator, ruleCombAlg:String, effect: Boolean) extends Term
+
+case class Policy(target: Target, rules: BOperator, ruleCombAlg:String) extends Term
 case class Rule(target: Target, condition: Condition, effect: Boolean) extends Term
 
 /* Target(Subject, Resource, Action 은 언제나 Conjunction 으로 묶인다) */
@@ -28,7 +29,7 @@ case class Action(action: String) extends Term
 
 /* Condition (= BooleanFunction | BooleanExpression) */
 sealed trait Condition extends Term
-sealed trait BExpression extends Condition //BooleanExpression (equal, grater than, ...)
+sealed trait BExpression extends Condition //BooleanExpression (equal, greater than, ...)
 //case class StringEqual(left:String, right:String) extends BExpression
 //case class GraterThan(left:String, right:String) extends BExpression //어차피 표현하는거지 실제로 함수 돌리는게 아님
 sealed trait BFunction extends Condition //BooleanFunction (And, Or, Not)
