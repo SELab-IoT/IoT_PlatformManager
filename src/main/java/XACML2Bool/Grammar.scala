@@ -1,23 +1,36 @@
 package XACML2Bool
 import scala.xml._
 /** Boolean Expression의 문법 표현 후 sat4j에 알맞는 형태로 변환 **/
+/***********************************************************************************************
+// Boolean Operator Tree : CNF든 Boolean 식이든 나타내기 위한 최상위 연결 트리
+BOTree ::= Conjunction(BOTree, BOTree) | Disjunction(BOTree, BOTree) | Negation(BOTree) | TTree
 
-/*
-*
-*  TTREE ::= List[PTREE]
-*
-*  PTREE ::= (Target, BTREE, CombAlg)
-*  PolicySet ::= PTREE
-*
-*  Target ::= (Subject, Resource, Action)
-*  Subject ::= BooleanExpression
-*  Resource ::= BooleanExpression
-*  Action ::= BooleanExpression
-*
-*  BTREE ::= Conjunction(TTREE, TTREE) | Disjunction(TTREE, TTREE) | Negation(TTREE) | TRUE | FALSE
-*  CTREE ::=
-*
-* */
+// TTree : 위 BOTree에서 하나의 항을 나타낸다
+TTree ::= PSTree | PTree
+
+// Policy Set Tree : PolicySet의 Target과 하위 Policy들을 연결하는 트리
+PSTree ::= BOTree[PTree] | Conjunction(Target, BOTree[PTree])
+
+// Policy Tree : 단일 Policy의 Target과 하위 Rule들을 연결하는 트리
+PTree ::= BOTree[RTree] | Conjunction(Target, BOTree[RTree])
+
+// Rule Tree : 단일 Rule의 Target과 Condition을 연결하는 트리
+/* 마지막 항은 필요한가? 일단 Effect=Deny를 상정하고 서술하였다. */
+RTree ::= CTree | Conjunction(Target, CTree) | Negation(Conjunction(Target, CTree))
+
+// Target : 복수의 Match를 연결하는 리스트
+Target ::= CTree /*Subject, Resource, Action의 묶음*/
+
+// Condition Tree : 각 Rule의 조건식을 나타내는 트리, 조건식이 없는 경우 바로 True
+CTree ::= Any | BFTree | BETree
+
+// Boolean Function Tree : BOTree와 유사하나 Match와 Condition내에서만 작동한다.
+BFTree ::= And(CTree, CTree) | Or(CTree, CTree) | Not(CTree)
+
+// Boolean Expression Tree : Boolean을 반환하는 비교식(Greater Than, Less Than, Equal, ...)을 표현하기 위한 트리
+/* 각 비교식은 0차에서는 직접 평가할 필요 없이 a, b, c 등으로 치환 가능하다. */
+BETree ::= GreaterThan(Number, Number) | LessThan(Number, Number) | Equal(String, String) | ...
+  ***********************************************************************************************/
 
 sealed trait BooleanTree{
   sealed abstract class BOTree[T<:TTree]
@@ -50,20 +63,20 @@ sealed trait BooleanTree{
 
 object Grammar extends BooleanTree{
 
-  // Parse whole XML
+  /** Parse whole XML **/
   def parseAll(xml: Elem):BOTree[TTree] = {
     if(xml.label.equalsIgnoreCase("PolicySet")) {
-      Unit[BOTree[PSTree]](parsePolicySet(xml)) //뭐야 이거 무서워.. AnyValCompanion 이래..
+      Unit[BOTree[PSTree]](parsePolicySet(xml)) //뭐야 이거 무서워.. AnyValCompanion 이래.. 혹시 에러나면 case class BOLeaf 사용.
     }else if(xml.label.equalsIgnoreCase("Policy")){
       Unit[BOTree[PTree]](parsePolicy(xml))
     }else ??? //Handle Exception
   }
 
-  // Parse 1 PolicySet Tag
+  /** Parse 1 PolicySet Tag **/
   def parsePolicySet(policySet: Elem):PSTree = {
-    val attrID = "policyCombiningAlgorithm:일단대충씀"
-    val policyCombAlg = policySet.attribute(attrID) match {
-        case Some(nodeSeq) => nodeSeq.lastOption.get.text //문법대로라면 하나밖에 없으니까 복수개의 policyCombiningAlgorithm은 핸들링하지 않음
+    val algID = "policyCombiningAlgorithm:일단대충씀"
+    val policyCombAlg = policySet.attribute(algID) match {
+        case Some(nodeSeq) => nodeSeq.lastOption.get.text // getOrElse 사용한 예외 처리는 필요 없을 듯
         case None => ??? //Handling No PolicyCombining Algorithm : 디폴트 적용하거나 예외 던지거나.
       }
 
@@ -73,7 +86,7 @@ object Grammar extends BooleanTree{
     PSTree(target, policies)
   }
 
-  // Parse Policies
+  /** Parse Policies **/
   def parsePolicyList(policies: Seq[Node], policyCombAlg: String):BOTree[PTree] = {
     policyCombAlg match {
       case "Permit Override" =>
@@ -85,27 +98,58 @@ object Grammar extends BooleanTree{
     }
   }
 
-  // Parse 1 Policy Tag (parseAll 에서의 호출 때문에 오버로딩함)
+  /** Parse 1 Policy Tag (parseAll 에서의 호출 때문에 오버로딩함) **/
   def parsePolicy(policy: Elem):BOTree[RTree] = {
+
+    val algID = "ruleCombiningAlgorithm:일단대충씀"
+    val ruleCombAlg = policy.attribute(algID) match {
+      case Some(nodeSeq) => nodeSeq.lastOption.get.text //문법대로라면 하나밖에 없으니까 복수개의 policyCombiningAlgorithm은 핸들링하지 않음
+      case None => ??? //Handling No PolicyCombining Algorithm : 디폴트 적용하거나 예외 던지거나.
+    }
+
     val target = parseTarget(???)
-    val rules = parseRuleList(policy.nonEmptyChildren)
+    val rules = parseRuleList(policy.nonEmptyChildren, ruleCombAlg)
     Unit(PTree(target, rules))
-    //    parsePolicy(policy.last) //이 last가 child 중 last인지 아니면 지 자신인지 모르겠네
+    //parsePolicy(policy.last) //이 last가 child 중 last인지 아니면 지 자신인지 모르겠네.. 전자라면 위에 싹다지우고 이거 주석 해제
   }
 
-  // Parse 1 Policy Tag
+  /** Parse 1 Policy Tag **/
   def parsePolicy(policy: Node):BOTree[RTree] = {
+
+    val algID = "ruleCombiningAlgorithm:일단대충씀"
+    val ruleCombAlg = policy.attribute(algID) match {
+      case Some(nodeSeq) => nodeSeq.lastOption.get.text //문법대로라면 하나밖에 없으니까 복수개의 policyCombiningAlgorithm은 핸들링하지 않음
+      case None => ??? //Handling No PolicyCombining Algorithm : 디폴트 적용하거나 예외 던지거나.
+    }
+
     val target = parseTarget(???)
-    val rules = parseRuleList(policy.nonEmptyChildren)
+    val rules = parseRuleList(policy.nonEmptyChildren, ruleCombAlg)
     Unit(PTree(target, rules))
   }
 
-  // Parse Rules
-  def parseRuleList(rules: Seq[Node]):BOTree[RTree] = ???
+  /** Parse Rules **/
+  def parseRuleList(rules: Seq[Node], ruleCombAlg: String):BOTree[RTree] = {
+    ruleCombAlg match {
+      case "Permit Override" =>
+        // 여기서 BOTree[RTree]를 BOTree[PTree]로 캐스팅 하거나 맨 마지막에 전부 BOTree[TTree]로 flatten 하거나 하는 작업이 필요함. 아니면 그냥 냅두거나.
+        rules.foldRight[BOTree[RTree]](Unit())((n, boTree) => Disjunction(Unit(parseRule(n)), boTree))
+      case "Deny Override" =>
+        rules.foldRight[BOTree[RTree]](Unit())((n, boTree) => Conjunction(Unit(parseRule(n)), boTree))
+      case "여기 일단 대충 씀" => ???
+    }
+  }
 
-  // Parse Target Tag
+  /** Parse 1 Rule Tag **/
+  def parseRule(rule: Node):RTree = ???
+
+  /** Parse Target Tag **/
   def parseTarget(target: Node):Target = ???
 
+  /** Parse Match **/
+  def parseMatch(cond: Node):CTree = ???
+
+  /** Parse Condition **/
+  def parseCondition(cond: Node):CTree = ???
 
 
 }
