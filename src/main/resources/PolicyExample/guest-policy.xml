@@ -1,0 +1,21 @@
+<PolicySet xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" PolicySetId="GuestPolicy"
+           PolicyCombiningAlgId="urn:oasis:names:tc:xacml:3.0:policy-combining-algorithm:deny-overrides" Version="1.0">
+    <Target>
+		<AnyOf>
+			<AllOf>
+				<Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">
+						guest
+					</AttributeValue>
+					<AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id"
+										 DataType="http://www.w3.org/2001/XMLSchema#string">
+				</Match>
+			</AllOf>
+		</AnyOf>
+    </Target>
+
+    <PolicyIdReference>GuestFridgePolicy</PolicyIdReference>
+    <PolicyIdReference>GuestTimePolicy</PolicyIdReference>
+	<PolicyIdReference>GuestGeneralPolicy</PolicyIdReference>
+
+</PolicySet>
