@@ -1,1 +1,21 @@
 # Created by .ignore support plugin (hsz.mobi)
+# ignore all
+*
+**
+white list
+!.mvn/wrapper/maven-wrapper.jar
+!lib
+!lib/*
+!lib/**
+!src
+!src/*
+!src/**
+!pom.xml
+!LICENSE
+!README.md
+!.gitignore
+
+black list
+src/.DS_Store
+src/main/.DS_Store
+Src/main/java/.DS_Store

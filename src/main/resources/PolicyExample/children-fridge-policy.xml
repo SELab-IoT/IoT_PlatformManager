@@ -1,0 +1,49 @@
+<Policy xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" PolicyId="ChildrenFridgePolicy"
+        RuleCombiningAlgId="urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:deny-overrides" Version="1.0">
+    <Target>
+        <AnyOf>
+            <AllOf>
+                <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">children</AttributeValue>
+                    <AttributeDesignator
+                            MustBePresent="true"
+                            Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject"
+                            AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id"
+                            DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                </Match>
+                <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">fridge</AttributeValue>
+                    <AttributeDesignator
+                            MustBePresent="true"
+                            Category="urn:oasis:names:tc:xacml:3.0:attribute-category:resource"
+                            AttributeId="urn:oasis:names:tc:xacml:1.0:resource:resource-id"
+                            DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                </Match>
+            </AllOf>
+        </AnyOf>
+    </Target>
+    <Rule RuleId="deny-rule" Effect="Deny">
+        <Target>
+            <AnyOf>
+                <AllOf>
+                    <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Take off</AttributeValue>
+                        <AttributeDesignator
+                                MustBePresent="true"
+                                Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action"
+                                AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id"
+                                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                    </Match>
+                </AllOf>
+            </AnyOf>
+        </Target>
+        <Condition>
+            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">food</AttributeValue>
+                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+                    <AttributeDesignator AttributeId="food" Category="fridge" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+                </Apply>
+            </Apply>
+        </Condition>
+    </Rule>
+</Policy>

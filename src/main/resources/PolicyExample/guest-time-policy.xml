@@ -1,0 +1,41 @@
+<Policy xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" PolicyId="GuestTimePolicy"
+        RuleCombiningAlgId="urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:deny-unless-permit" Version="1.0">
+    <Target>
+		<AnyOf>
+			<AllOf>
+				<Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">
+						guest
+					</AttributeValue>
+					<AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id" 
+										 DataType="http://www.w3.org/2001/XMLSchema#string">
+				</Match>
+			</AllOf>
+		</AnyOf>
+    </Target>
+    <Rule RuleId="time-rule" Effect="Permit">
+		<Condition>
+			<!-- Time is 4 to 10, permit -->
+			<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
+				<Apply FunctionId="urn:oasis:names:tc:xacml:2.0:function:integer-greater-than">
+					<AttributeValue DataType=”http://www.w3.org/2001/XMLSchema#integer”>4</AttributeValue>
+					<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:integer-one-and-only">
+						<AttributeDesignator AttributeId="time" Category="environment" DataType="http://www.w3.org/2001/XMLSchema#integer" MustBePresent="true"/>
+					</Apply>
+				</Apply>
+				<Apply FunctionId="urn:oasis:names:tc:xacml:2.0:function:integer-less-than">
+					<AttributeValue DataType=”http://www.w3.org/2001/XMLSchema#integer”>10</AttributeValue>
+					<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:integer-one-and-only">
+						<AttributeDesignator AttributeId="time" Category="environment" DataType="http://www.w3.org/2001/XMLSchema#integer" MustBePresent="true"/>
+					</Apply>
+				</Apply>
+			</Apply>
+        </Condition>
+    </Rule>
+	
+	<!--
+	don't need, because of 'deny-unless-permit'
+	<Rule RuleId="deny-rule" Effect="Deny"></Rule>
+	-->
+	
+</Policy>

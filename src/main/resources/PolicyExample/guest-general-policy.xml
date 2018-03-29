@@ -1,0 +1,18 @@
+<Policy xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" PolicyId="GuestGeneralPolicy"
+        RuleCombiningAlgId="urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:deny-unless-permit" Version="1.0">
+    <Target>
+		<AnyOf>
+			<AllOf>
+				<Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">
+						guest
+					</AttributeValue>
+					<AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id" 
+										 DataType="http://www.w3.org/2001/XMLSchema#string">
+				</Match>
+			</AllOf>
+		</AnyOf>
+    </Target>
+	<Rule RuleId="deny-rule" Effect="Deny"></Rule>
+	
+</Policy>

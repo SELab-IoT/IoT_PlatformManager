@@ -1,0 +1,45 @@
+<Policy xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" PolicyId="GuestFridgePolicy"
+        RuleCombiningAlgId="urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:permit-overrides" Version="1.0">
+    <Target>
+		<AnyOf>
+			<AllOf>
+				<Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">
+						guest
+					</AttributeValue>
+					<AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id"
+										 DataType="http://www.w3.org/2001/XMLSchema#string" />
+				</Match>
+				<Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">
+						fridge
+					</AttributeValue>
+					<AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:resource:resource-id"
+										 DataType="http://www.w3.org/2001/XMLSchema#string"/>
+				</Match>
+			</AllOf>
+		</AnyOf>
+    </Target>
+    <Rule RuleId="permit-rule" Effect="Permit">
+        <Target>
+			<AnyOf>
+				<AllOf>
+					<ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+						<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Put in</AttributeValue>
+						<AttributeDeisgnator DataType="http://www.w3.org/2001/XMLSchema#string"
+										     AttributeId="FridgeAction"/>
+					</ActionMatch>
+				</AllOf>
+			</AnyOf>
+        </Target>
+        <Condition>
+            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+				<!-- drink => beverage -->
+                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">beverage</AttributeValue>
+                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+                    <AttributeDesignator AttributeId="food" Category="fridge" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+                </Apply>
+            </Apply>
+        </Condition>
+    </Rule>
+</Policy>
