@@ -37,15 +37,15 @@ sealed trait BooleanTree{
   case class Conjunction[T<:TTree](left: BOTree[T], right: BOTree[T]) extends BOTree[T]
   case class Disjunction[T<:TTree](left: BOTree[T], right: BOTree[T]) extends BOTree[T]
   case class Negation[T<:TTree](term: BOTree[T]) extends BOTree[T]
-//  case class BOLeaf(term: TTree) extends BOTree[TTree]
+  //  case class BOLeaf[T<:TTree](term: T) extends BOTree[T]
 
   //Term의 기준은 각 정책 집합, 정책, 규칙을 하나의 텀으로 본다.
+  //Target을 추후 BOTree로 묶기 위해 TTree를 상속시킴(사실 일종의 텀으로 볼 수도 있으므로..).
   sealed abstract class TTree
-  case class PSTree(target:Target, policies:BOTree[PTree]) extends TTree
-  case class PTree(target:Target, rules:BOTree[RTree]) extends TTree
-  case class RTree(target:Target, condition:CTree) extends TTree
-
-  case class Target(subject:CTree, resource:CTree, action:CTree)
+  case class PSTree(target: Target, policies: BOTree[PTree]) extends TTree
+  case class PTree(target: Target, rules: BOTree[RTree]) extends TTree
+  case class RTree(target: Target, condition: CTree) extends TTree
+  case class Target(matchTree: CTree) extends TTree
 
   sealed abstract class CTree
   case object Any extends CTree
@@ -76,9 +76,9 @@ object Grammar extends BooleanTree{
   def parsePolicySet(policySet: Elem):PSTree = {
     val algID = "policyCombiningAlgorithm:일단대충씀"
     val policyCombAlg = policySet.attribute(algID) match {
-        case Some(nodeSeq) => nodeSeq.lastOption.get.text // getOrElse 사용한 예외 처리는 필요 없을 듯
-        case None => ??? //Handling No PolicyCombining Algorithm : 디폴트 적용하거나 예외 던지거나.
-      }
+      case Some(nodeSeq) => nodeSeq.lastOption.get.text // getOrElse 사용한 예외 처리는 필요 없을 듯
+      case None => ??? //Handling No PolicyCombining Algorithm : 디폴트 적용하거나 예외 던지거나.
+    }
 
     val target = parseTarget(???)
     val policies:BOTree[PTree] = parsePolicyList(???, policyCombAlg)
@@ -140,16 +140,41 @@ object Grammar extends BooleanTree{
   }
 
   /** Parse 1 Rule Tag **/
-  def parseRule(rule: Node):RTree = ???
+  def parseRule(rule: Node):RTree = {
+    val target = parseTarget((rule \ "Target").lastOption)
+    val condition = parseCondition((rule \ "Condition").lastOption)
+    RTree(target, condition)
+  }
 
   /** Parse Target Tag **/
-  def parseTarget(target: Node):Target = ???
+  def parseTarget(target: Option[Node]):Target =
+    target match {
+      case Some(t) => {
+        //        val subject = parseMatchList(t \\ "Subject")
+        //        val resource = parseMatchList(t \\ "Resource")
+        //        val action = parseMatchList(t \\ "Action")
+        //        Target(subject, resource, action)
+      }
+      case None => Target(Any)
+    }
 
   /** Parse Match **/
-  def parseMatch(cond: Node):CTree = ???
+  def parseMatchList(matList: NodeSeq):CTree =
+    matList.foldRight[CTree](Unit())((m, cTree) => Or(parseMatch(Some(m)), cTree))
+
+  /** Parse Match **/
+  def parseMatch(mat: Option[Node]):CTree =
+    mat match {
+      case Some(_) => ???
+      case None => ???
+    }
+
 
   /** Parse Condition **/
-  def parseCondition(cond: Node):CTree = ???
-
+  def parseCondition(cond: Option[Node]):CTree =
+    cond match {
+      case Some(_) => ???
+      case None => ???
+    }
 
 }
