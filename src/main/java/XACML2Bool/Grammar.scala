@@ -30,7 +30,7 @@ BFTree ::= And(CTree, CTree) | Or(CTree, CTree) | Not(CTree)
 // Boolean Expression Tree : Boolean을 반환하는 비교식(Greater Than, Less Than, Equal, ...)을 표현하기 위한 트리
 /* 각 비교식은 0차에서는 직접 평가할 필요 없이 a, b, c 등으로 치환 가능하다. */
 BETree ::= GreaterThan(Number, Number) | LessThan(Number, Number) | Equal(String, String) | ...
-  ***********************************************************************************************/
+***********************************************************************************************/
 
 sealed trait BooleanTree{
   sealed abstract class BOTree[T<:TTree]
@@ -58,6 +58,7 @@ sealed trait BooleanTree{
   sealed abstract class BETree extends CTree
   case class Equal[A, B](a:A, b:B) extends BETree
   case class GreaterThan[A, B](a:A, b:B) extends BETree
+  case class AnyBinaryExp[A, B](op:String, a:A, b:B) extends BETree
   //  And so on... in BETree
 }
 
@@ -150,31 +151,62 @@ object Grammar extends BooleanTree{
   def parseTarget(target: Option[Node]):Target =
     target match {
       case Some(t) => {
-        //        val subject = parseMatchList(t \\ "Subject")
-        //        val resource = parseMatchList(t \\ "Resource")
-        //        val action = parseMatchList(t \\ "Action")
-        //        Target(subject, resource, action)
+        val anyOfList = (t \ "AnyOf").foldRight[CTree](Any)((anyOf, target) => And(parseAnyOf(anyOf), target))
+        Target(anyOfList)
       }
       case None => Target(Any)
     }
 
-  /** Parse Match **/
-  def parseMatchList(matList: NodeSeq):CTree =
-    matList.foldRight[CTree](Unit())((m, cTree) => Or(parseMatch(Some(m)), cTree))
+  /** Parse AnyOf Tag **/
+  def parseAnyOf(anyOf: Node):CTree =
+    (anyOf \ "AllOf").foldRight[CTree](Any)((allOf, anyOf) => Or(parseAllOf(allOf), anyOf))
+
+  /** Parse AllOf Tag **/
+  def parseAllOf(allOf: Node):CTree =
+    (allOf \ "Match").foldRight[CTree](Any)((mat, allOf) => And(parseMatch(mat), allOf))
+
+//  Not used
+//  /** Parse Match **/
+//  def parseMatchList(matList: NodeSeq):CTree =
+//    matList.foldRight[CTree](Unit())((m, cTree) => Or(parseMatch(Some(m)), cTree))
 
   /** Parse Match **/
-  def parseMatch(mat: Option[Node]):CTree =
-    mat match {
-      case Some(_) => ???
-      case None => ???
-    }
-
+  def parseMatch(mat: Node):CTree = {
+    val matchId = (mat \ "@MatchId").toString()
+    val param1 = (mat \ "AttributeValue").text
+    val param2 = (mat \ "AttributeDesignator" \ "@AttributeId").toString()
+    // TODO: 1차에서 MatchId의 종류에 따라 핸들링 할 것임.
+    AnyBinaryExp(matchId, param1, param2)
+  }
 
   /** Parse Condition **/
+  def catalog = Map(("function:not", And),("function:not", Or),("function:not", Not))
   def parseCondition(cond: Option[Node]):CTree =
     cond match {
-      case Some(_) => ???
-      case None => ???
+      case Some(c) => {
+        val apply = (c \ "Apply")
+        ???
+      }
+      case None => Any
     }
 
+  def parseApply(apply:NodeSeq):CTree = {
+    val functionId = (apply \ "@FunctionId").toString()
+    val tuple = catalog.find(f => functionId contains f._1)
+    tuple match {
+      case Some((_, func)) => {
+        func match {
+          case And => ???
+          case Or => ???
+          case Not => ???
+        }
+      }
+      case None => {
+        // TODO: 1차에서 FunctionId의 종류에 따라 핸들링 할 것임.
+        val param1 = ???
+        val param2 = ???
+        AnyBinaryExp(functionId, param1, param2)
+      }
+    }
+  }
 }

@@ -89,6 +89,12 @@ class XACMLParser {
     println("--8--")
     println(q \ "Target")
 
+    println("--9--")
+    println((q \ "Target") \\ "@AttributeId")
+
+    println("--10--")
+    println(q \\ "@PolicyId")
+
   }
 
 
