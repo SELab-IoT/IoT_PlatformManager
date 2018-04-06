@@ -1,4 +1,5 @@
 package XACML2Bool
+import scala.collection.immutable.Stream.Empty
 import scala.xml._
 /** Boolean Expression의 문법 표현 후 sat4j에 알맞는 형태로 변환 **/
 /***********************************************************************************************
@@ -62,19 +63,19 @@ sealed trait BooleanTree{
   //  And so on... in BETree
 }
 
-object Grammar extends BooleanTree{
+object Grammar extends BooleanTree {
 
   /** Parse whole XML **/
-  def parseAll(xml: Elem):BOTree[TTree] = {
-    if(xml.label.equalsIgnoreCase("PolicySet")) {
+  def parseAll(xml: Elem): BOTree[TTree] = {
+    if (xml.label.equalsIgnoreCase("PolicySet")) {
       Unit[BOTree[PSTree]](parsePolicySet(xml)) //뭐야 이거 무서워.. AnyValCompanion 이래.. 혹시 에러나면 case class BOLeaf 사용.
-    }else if(xml.label.equalsIgnoreCase("Policy")){
+    } else if (xml.label.equalsIgnoreCase("Policy")) {
       Unit[BOTree[PTree]](parsePolicy(xml))
-    }else ??? //Handle Exception
+    } else ??? //Handle Exception
   }
 
   /** Parse 1 PolicySet Tag **/
-  def parsePolicySet(policySet: Elem):PSTree = {
+  def parsePolicySet(policySet: Elem): PSTree = {
     val algID = "policyCombiningAlgorithm:일단대충씀"
     val policyCombAlg = policySet.attribute(algID) match {
       case Some(nodeSeq) => nodeSeq.lastOption.get.text // getOrElse 사용한 예외 처리는 필요 없을 듯
@@ -82,13 +83,13 @@ object Grammar extends BooleanTree{
     }
 
     val target = parseTarget(???)
-    val policies:BOTree[PTree] = parsePolicyList(???, policyCombAlg)
+    val policies: BOTree[PTree] = parsePolicyList(???, policyCombAlg)
 
     PSTree(target, policies)
   }
 
   /** Parse Policies **/
-  def parsePolicyList(policies: Seq[Node], policyCombAlg: String):BOTree[PTree] = {
+  def parsePolicyList(policies: Seq[Node], policyCombAlg: String): BOTree[PTree] = {
     policyCombAlg match {
       case "Permit Override" =>
         // 여기서 BOTree[RTree]를 BOTree[PTree]로 캐스팅 하거나 맨 마지막에 전부 BOTree[TTree]로 flatten 하거나 하는 작업이 필요함. 아니면 그냥 냅두거나.
@@ -100,7 +101,7 @@ object Grammar extends BooleanTree{
   }
 
   /** Parse 1 Policy Tag (parseAll 에서의 호출 때문에 오버로딩함) **/
-  def parsePolicy(policy: Elem):BOTree[RTree] = {
+  def parsePolicy(policy: Elem): BOTree[RTree] = {
 
     val algID = "ruleCombiningAlgorithm:일단대충씀"
     val ruleCombAlg = policy.attribute(algID) match {
@@ -115,7 +116,7 @@ object Grammar extends BooleanTree{
   }
 
   /** Parse 1 Policy Tag **/
-  def parsePolicy(policy: Node):BOTree[RTree] = {
+  def parsePolicy(policy: Node): BOTree[RTree] = {
 
     val algID = "ruleCombiningAlgorithm:일단대충씀"
     val ruleCombAlg = policy.attribute(algID) match {
@@ -129,7 +130,7 @@ object Grammar extends BooleanTree{
   }
 
   /** Parse Rules **/
-  def parseRuleList(rules: Seq[Node], ruleCombAlg: String):BOTree[RTree] = {
+  def parseRuleList(rules: Seq[Node], ruleCombAlg: String): BOTree[RTree] = {
     ruleCombAlg match {
       case "Permit Override" =>
         // 여기서 BOTree[RTree]를 BOTree[PTree]로 캐스팅 하거나 맨 마지막에 전부 BOTree[TTree]로 flatten 하거나 하는 작업이 필요함. 아니면 그냥 냅두거나.
@@ -141,14 +142,14 @@ object Grammar extends BooleanTree{
   }
 
   /** Parse 1 Rule Tag **/
-  def parseRule(rule: Node):RTree = {
+  def parseRule(rule: Node): RTree = {
     val target = parseTarget((rule \ "Target").lastOption)
     val condition = parseCondition((rule \ "Condition").lastOption)
     RTree(target, condition)
   }
 
   /** Parse Target Tag **/
-  def parseTarget(target: Option[Node]):Target =
+  def parseTarget(target: Option[Node]): Target =
     target match {
       case Some(t) => {
         val anyOfList = (t \ "AnyOf").foldRight[CTree](Any)((anyOf, target) => And(parseAnyOf(anyOf), target))
@@ -158,20 +159,20 @@ object Grammar extends BooleanTree{
     }
 
   /** Parse AnyOf Tag **/
-  def parseAnyOf(anyOf: Node):CTree =
+  def parseAnyOf(anyOf: Node): CTree =
     (anyOf \ "AllOf").foldRight[CTree](Any)((allOf, anyOf) => Or(parseAllOf(allOf), anyOf))
 
   /** Parse AllOf Tag **/
-  def parseAllOf(allOf: Node):CTree =
+  def parseAllOf(allOf: Node): CTree =
     (allOf \ "Match").foldRight[CTree](Any)((mat, allOf) => And(parseMatch(mat), allOf))
 
-//  Not used
-//  /** Parse Match **/
-//  def parseMatchList(matList: NodeSeq):CTree =
-//    matList.foldRight[CTree](Unit())((m, cTree) => Or(parseMatch(Some(m)), cTree))
+  //  Not used
+  //  /** Parse Match **/
+  //  def parseMatchList(matList: NodeSeq):CTree =
+  //    matList.foldRight[CTree](Unit())((m, cTree) => Or(parseMatch(Some(m)), cTree))
 
   /** Parse Match **/
-  def parseMatch(mat: Node):CTree = {
+  def parseMatch(mat: Node): CTree = {
     val matchId = (mat \ "@MatchId").toString()
     val param1 = (mat \ "AttributeValue").text
     val param2 = (mat \ "AttributeDesignator" \ "@AttributeId").toString()
@@ -180,33 +181,37 @@ object Grammar extends BooleanTree{
   }
 
   /** Parse Condition **/
-  def catalog = Map(("function:not", And),("function:not", Or),("function:not", Not))
-  def parseCondition(cond: Option[Node]):CTree =
+  def parseCondition(cond: Option[Node]): CTree =
     cond match {
-      case Some(c) => {
-        val apply = (c \ "Apply")
-        ???
-      }
+      case Some(c) => parseApply(c \ "Apply")
       case None => Any
     }
 
-  def parseApply(apply:NodeSeq):CTree = {
+  def catalog = Map(("function:and", And), ("function:or", Or), ("function:not", Not))
+  def parseApply(apply: NodeSeq): CTree = {
     val functionId = (apply \ "@FunctionId").toString()
     val tuple = catalog.find(f => functionId contains f._1)
+    val params = (apply \ "Apply")
     tuple match {
       case Some((_, func)) => {
         func match {
-          case And => ???
-          case Or => ???
-          case Not => ???
+          case Not => Not(parseApply(params))
+          //          case And => And(???, ???)
+          //          case Or => Or(???, ???)
+          case _ => {
+            val left = parseApply(params.head)
+            val right = parseApply(params.last)
+            func(left, right)
+          }
         }
       }
       case None => {
         // TODO: 1차에서 FunctionId의 종류에 따라 핸들링 할 것임.
-        val param1 = ???
-        val param2 = ???
-        AnyBinaryExp(functionId, param1, param2)
+        val value = (apply \ "AttributeValue").toString()
+        val designator = (apply \\ "AttributeDesignator" \ "@Category")+"::"+(apply \\ "AttributeDesignator" \ "@AttributeId")
+        AnyBinaryExp(functionId, designator, value)
       }
     }
   }
+
 }

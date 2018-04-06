@@ -1,4 +1,5 @@
 package XACML2Bool
+import scala.collection.immutable.Stream.Empty
 import scala.xml._
 
 object Parser{
@@ -94,6 +95,39 @@ class XACMLParser {
 
     println("--10--")
     println(q \\ "@PolicyId")
+
+
+    def dropWhile[A](s:Stream[A])(p:A=>Boolean):Stream[A] =
+      s.foldRight[Stream[A]](s)((_, stream)=> if(p(stream.head)) {println("IF: "+stream); stream.tail} else {println("ELSE: "+stream); stream})
+
+    /*
+    IF: Stream(1, 2, 3, 7, 1, 2, 3, 4, 5, 6)
+    IF: Stream(2, 3, 7, 1, 2, 3, 4, 5, 6)
+    IF: Stream(3, 7, 1, 2, 3, 4, 5, 6)
+    ELSE: Stream(7, 1, 2, 3, 4, 5, 6)
+    ELSE: Stream(7, 1, 2, 3, 4, 5, 6)
+    ELSE: Stream(7, 1, 2, 3, 4, 5, 6)
+    ELSE: Stream(7, 1, 2, 3, 4, 5, 6)
+    ELSE: Stream(7, 1, 2, 3, 4, 5, 6)
+    ELSE: Stream(7, 1, 2, 3, 4, 5, 6)
+    ELSE: Stream(7, 1, 2, 3, 4, 5, 6)
+*/
+    //Stream(7, 1, 2, 3, 4, 5, 6)
+    println(dropWhile[Int](Stream[Int](1,2,3,7,1,2,3,4,5,6))(_<5))
+
+//    Stack Overflow
+//    def nats(n:Int):Stream[Int] = Stream.cons[Int](1, nats(n+1))
+//    println(dropWhile[Int](nats(1))(_<5))
+
+    def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = f(z) match {
+        case Some((h,s)) => Stream.cons(h, unfold(s)(f))
+             case None => Empty
+           }
+
+    val nats: Stream[Int] =
+      unfold[Int, Int](1)(n => Some((n, n+2)))
+
+    println(nats.take(5).toList)
 
   }
 
