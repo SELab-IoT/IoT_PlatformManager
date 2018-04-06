@@ -74,7 +74,7 @@ object Grammar extends BooleanTree{
 
   /** Parse 1 PolicySet Tag **/
   def parsePolicySet(policySet: Elem):PSTree = {
-    val algID = "policyCombiningAlgorithm:일단대충씀"
+    val algID = "PolicySetId"
     val policyCombAlg = policySet.attribute(algID) match {
       case Some(nodeSeq) => nodeSeq.lastOption.get.text // getOrElse 사용한 예외 처리는 필요 없을 듯
       case None => ??? //Handling No PolicyCombining Algorithm : 디폴트 적용하거나 예외 던지거나.

@@ -19,3 +19,4 @@ black list
 src/.DS_Store
 src/main/.DS_Store
 Src/main/java/.DS_Store
+.idea/*
