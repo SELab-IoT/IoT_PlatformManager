@@ -38,7 +38,7 @@ sealed trait BooleanTree{
   case class Conjunction[T<:TTree](left: BOTree[T], right: BOTree[T]) extends BOTree[T]
   case class Disjunction[T<:TTree](left: BOTree[T], right: BOTree[T]) extends BOTree[T]
   case class Negation[T<:TTree](term: BOTree[T]) extends BOTree[T]
-  //  case class BOLeaf[T<:TTree](term: T) extends BOTree[T]
+  case class BOLeaf[T<:TTree](term: T) extends BOTree[T]
 
   //Term의 기준은 각 정책 집합, 정책, 규칙을 하나의 텀으로 본다.
   //Target을 추후 BOTree로 묶기 위해 TTree를 상속시킴(사실 일종의 텀으로 볼 수도 있으므로..).
@@ -69,11 +69,12 @@ object Grammar extends BooleanTree {
 
   /** Parse whole XML **/
   def parseAll(xml: Elem): BOTree[TTree] = {
-    if (xml.label.equalsIgnoreCase("PolicySet")) {
-      Unit[BOTree[PSTree]](parsePolicySet(xml)) //뭐야 이거 무서워.. AnyValCompanion 이래.. 혹시 에러나면 case class BOLeaf 사용.
-    } else if (xml.label.equalsIgnoreCase("Policy")) {
-      Unit[BOTree[PTree]](parsePolicy(xml))
-    } else throw new ParseException("Not PlicySet or Policy")//Handle Exception
+    val label = xml.label.equalsIgnoreCase(_)
+    if (label("PolicySet")) {
+      BOLeaf(parsePolicySet(xml))
+    } else if (label("Policy")) {
+      BOLeaf(parsePolicy(xml))
+    } else throw new ParseException("Not PolicySet or Policy") //Handle Exception
   }
 
   /** Parse 1 PolicySet Tag **/
@@ -81,41 +82,38 @@ object Grammar extends BooleanTree {
     val algID = "PolicySetId"
     val policyCombAlg = policySet.attribute(algID) match {
       case Some(nodeSeq) => nodeSeq.lastOption.get.text // getOrElse 사용한 예외 처리는 필요 없을 듯
-      case None => throw new ParseException("No PlicyCombiningAlg")//Handling No PolicyCombining Algorithm : 디폴트 적용하거나 예외 던지거나.
+      case None => throw new ParseException("No PolicyCombiningAlg")//Handling No PolicyCombining Algorithm : 디폴트 적용하거나 예외 던지거나.
     }
-
-    val targetNode = policySet \ "Target" match {
-      case NodeSeq.Empty => None
-      case n => Some(n.theSeq(0))
-    }
-
-    val target = parseTarget(targetNode)
-
-    val policyNode = (policySet \ "Policy").theSeq
-
+//    val targetNode = (policySet \ "Target") match {
+//      case NodeSeq.Empty => None
+//      case n => Some(n.theSeq(0))
+//    }
+    val target = parseTarget((policySet \ "Target").headOption)
+    val policyNode = (policySet \ "Policy")
     val policies: BOTree[PTree] = parsePolicyList(policyNode, policyCombAlg)
-
-
     PSTree(target, policies)
   }
 
   /** Parse Policies **/
-  def parsePolicyList(policies: Seq[Node], policyCombAlg: String): BOTree[PTree] = {
+  def parsePolicyList(policies: NodeSeq, policyCombAlg: String): BOTree[PTree] = {
+    val leaves = policies.map(policy => BOLeaf(parsePolicy(policy)))
     policyCombAlg match {
       case "urn:oasis:names:tc:xacml:3.0:policy-combining-algorithm:permit-overrides" =>
         // 여기서 BOTree[RTree]를 BOTree[PTree]로 캐스팅 하거나 맨 마지막에 전부 BOTree[TTree]로 flatten 하거나 하는 작업이 필요함. 아니면 그냥 냅두거나.
-        policies.foldRight[BOTree[PTree]](Unit())((n, boTree) => Disjunction(Unit(parsePolicy(n)), boTree))
+        // 일단 추후 출력 확인해보고 결정
+        // policies.foldRight[BOTree[PTree]](False)((n, boTree) => Disjunction(BOLeaf(parsePolicy(n)), boTree)) //Legacy code
+        leaves.reduce[BOTree[PTree]](Disjunction(_, _))
       case "urn:oasis:names:tc:xacml:3.0:policy-combining-algorithm:deny-overrides" =>
-        policies.foldRight[BOTree[PTree]](Unit())((n, boTree) => Conjunction(Unit(parsePolicy(n)), boTree))
+        leaves.reduce[BOTree[PTree]](Conjunction(_, _))
       case "urn:oasis:names:tc:xacml:3.0:policy-combining-algorithm:deny-unless-permit" =>
-        policies.foldRight[BOTree[PTree]](Unit())((n, boTree) => Disjunction(Unit(parsePolicy(n)), boTree)) // Permit 이 하나라도 있으면 Permit 아니면 Deny
+        leaves.reduce[BOTree[PTree]](Disjunction(_, _)) // Permit 이 하나라도 있으면 Permit 아니면 Deny
       case "urn:oasis:names:tc:xacml:3.0:policy-combining-algorithm:permit-unless-deny" =>
-        policies.foldRight[BOTree[PTree]](Unit())((n, boTree) => Conjunction(Unit(parsePolicy(n)), boTree)) // Deny 가 하나라도 있으면 Deny 아니면 Permit
+        leaves.reduce[BOTree[PTree]](Conjunction(_, _)) // Deny 가 하나라도 있으면 Deny 아니면 Permit
     }
   }
 
   /** Parse 1 Policy Tag (parseAll 에서의 호출 때문에 오버로딩함) **/
-  def parsePolicy(policy: Elem): BOTree[RTree] = {
+  def parsePolicy(policy: Elem): PTree = {
 
     parsePolicy(policy.last)
 //    val algID = "RuleCombiningAlgId"
@@ -135,42 +133,44 @@ object Grammar extends BooleanTree {
   }
 
   /** Parse 1 Policy Tag **/
-  def parsePolicy(policy: Node): BOTree[RTree] = {
+  def parsePolicy(policy: Node): PTree = {
 
     val algID = "RuleCombiningAlgId"
     val ruleCombAlg = policy.attribute(algID) match {
-      case Some(nodeSeq) => nodeSeq.lastOption.get.text //문법대로라면 하나밖에 없으니까 복수개의 policyCombiningAlgorithm은 핸들링하지 않음
+      case Some(nodeSeq) => nodeSeq.head.text //문법대로라면 하나밖에 없으니까 복수개의 policyCombiningAlgorithm은 핸들링하지 않음
       case None => throw new ParseException("no ruleCombiningAlg")//Handling No PolicyCombining Algorithm : 디폴트 적용하거나 예외 던지거나.
     }
-    val targetNode = policy \ "Target" match {
-      case NodeSeq.Empty => None
-      case n => Some(n.theSeq(0))
-    }
+//    val targetNode = policy \ "Target" match {
+//      case NodeSeq.Empty => None
+//      case n => Some(n.theSeq(0))
+//    }
 
-    val target = parseTarget(targetNode)
+    val target = parseTarget((policy \ "Target").headOption)
     val rules = parseRuleList(policy.nonEmptyChildren, ruleCombAlg)
-    Unit(PTree(target, rules))
+    PTree(target, rules)
   }
 
   /** Parse Rules **/
-  def parseRuleList(rules: Seq[Node], ruleCombAlg: String): BOTree[RTree] = {
+  def parseRuleList(rules: NodeSeq, ruleCombAlg: String): BOTree[RTree] = {
+    val leaves = rules.map(rule => BOLeaf(parseRule(rule)))
     ruleCombAlg match {
       case "urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:permit-overrides" =>
         // 여기서 BOTree[RTree]를 BOTree[PTree]로 캐스팅 하거나 맨 마지막에 전부 BOTree[TTree]로 flatten 하거나 하는 작업이 필요함. 아니면 그냥 냅두거나.
-        rules.foldRight[BOTree[RTree]](Unit())((n, boTree) => Disjunction(Unit(parseRule(n)), boTree))
+//        rules.foldRight[BOTree[RTree]](Unit())((n, boTree) => Disjunction(Unit(parseRule(n)), boTree))
+        leaves.reduce[BOTree[RTree]](Disjunction(_, _))
       case "urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:deny-overrides" =>
-        rules.foldRight[BOTree[RTree]](Unit())((n, boTree) => Conjunction(Unit(parseRule(n)), boTree))
+        leaves.reduce[BOTree[RTree]](Conjunction(_, _))
       case "urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:deny-unless-permit" =>
-        rules.foldRight[BOTree[RTree]](Unit())((n, boTree) => Disjunction(Unit(parseRule(n)), boTree))
+        leaves.reduce[BOTree[RTree]](Disjunction(_, _))
       case "urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:permit-unless-deny" =>
-        rules.foldRight[BOTree[RTree]](Unit())((n, boTree) => Conjunction(Unit(parseRule(n)), boTree))
+        leaves.reduce[BOTree[RTree]](Conjunction(_, _))
     }
   }
 
   /** Parse 1 Rule Tag **/
   def parseRule(rule: Node): RTree = {
-    val target = parseTarget((rule \ "Target").lastOption)
-    val condition = parseCondition((rule \ "Condition").lastOption)
+    val target = parseTarget((rule \ "Target").headOption)
+    val condition = parseCondition((rule \ "Condition").headOption)
     RTree(target, condition)
   }
 
@@ -178,7 +178,8 @@ object Grammar extends BooleanTree {
   def parseTarget(target: Option[Node]): Target =
     target match {
       case Some(t) => {
-        val anyOfList = (t \ "AnyOf").foldRight[CTree](Any)((anyOf, target) => And(parseAnyOf(anyOf), target))
+//        val anyOfList = (t \ "AnyOf").foldRight[CTree](Any)((anyOf, target) => And(parseAnyOf(anyOf), target))
+        val anyOfList = (t \ "AnyOf").map(parseAnyOf).reduce(And(_, _))
         Target(anyOfList)
       }
       case None => Target(Any)
@@ -186,11 +187,13 @@ object Grammar extends BooleanTree {
 
   /** Parse AnyOf Tag **/
   def parseAnyOf(anyOf: Node): CTree =
-    (anyOf \ "AllOf").foldRight[CTree](Any)((allOf, anyOf) => Or(parseAllOf(allOf), anyOf))
+    (anyOf \ "AllOf").map(parseAllOf).reduce(Or(_, _))
+//    (anyOf \ "AllOf").foldRight[CTree](Any)((allOf, anyOf) => Or(parseAllOf(allOf), anyOf))
 
   /** Parse AllOf Tag **/
   def parseAllOf(allOf: Node): CTree =
-    (allOf \ "Match").foldRight[CTree](Any)((mat, allOf) => And(parseMatch(mat), allOf))
+    (allOf \ "Match").map(parseMatch).reduce(And(_, _))
+//    (allOf \ "Match").foldRight[CTree](Any)((mat, allOf) => And(parseMatch(mat), allOf))
 
   //  Not used
   //  /** Parse Match **/
@@ -222,12 +225,15 @@ object Grammar extends BooleanTree {
       case Some((_, func)) => {
         func match {
           case Not => Not(parseApply(params))
-          //          case And => And(???, ???)
-          //          case Or => Or(???, ???)
-          case _ => {
+          case And => {
             val left = parseApply(params.head)
             val right = parseApply(params.last)
-            func(left, right)
+            And(left, right)
+          }
+          case Or => {
+            val left = parseApply(params.head)
+            val right = parseApply(params.last)
+            Or(left, right)
           }
         }
       }
