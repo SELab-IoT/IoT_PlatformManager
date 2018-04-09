@@ -107,7 +107,6 @@ object Grammar extends BooleanTree {
 
   /** Parse 1 Policy Tag (parseAll 에서의 호출 때문에 오버로딩함) **/
   def parsePolicy(policy: Elem): PTree = {
-
     parsePolicy(policy.last)
   }
 
@@ -204,7 +203,7 @@ object Grammar extends BooleanTree {
       }
       case None => {
         // TODO: 1차에서 FunctionId의 종류에 따라 핸들링 할 것임.
-        val value = (apply \ "AttributeValue").toString()
+        val value = (apply \ "AttributeValue").text
         val designator = (apply \\ "AttributeDesignator" \ "@Category")+"::"+(apply \\ "AttributeDesignator" \ "@AttributeId")
         AnyBinaryExp(functionId, designator, value)
       }
