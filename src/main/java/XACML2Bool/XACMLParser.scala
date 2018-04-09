@@ -98,7 +98,7 @@ class XACMLParser {
 //    println(q \\ "@PolicyId")
     println(Grammar.parseAll(policy))
   }
-  
+
 }
 
 object Main extends App {
