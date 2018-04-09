@@ -5,6 +5,7 @@ import scala.xml._
 object Parser{
   //if policyset --> PolicySet.parse()
   //if policy --> Policy.parse()
+
 }
 
 class XACMLParser {
@@ -64,78 +65,40 @@ class XACMLParser {
 
 
   def printX = {
-
-    var p = policy.toString()
-    var q = scala.xml.XML.loadString(p);
-    // q = scala.xml.XML.load(url:URL) // URL로 파일에 접근하는 것도 가능한 듯
-
-    // \는 직계 자손중에서 찾고
-    // \\는 직계 아닌것도 다 찾음, 한개면 Elem, 여러개면 NodeSeq
-    // https://medium.com/@harittweets/working-with-xml-in-scala-bd6271a1e178
-
-    println("--1--")
-    println(q.last)
-    println("--2--")
-    println((q \ "kkk") match {case NodeSeq.Empty => 'a'})
-    println("--3--")
-    println((q \\ "Condition").last)
-    println("--4--")
-    println(q \\ "Condition" \ "Apply")
-    println("--5--")
-    println(q \ "Condition" \ "Apply")
-    println("--6--")
-    println(q \ "AttributeDesignator")
-    println("--7--")
-    println(q \ "Apply")
-    println("--8--")
-    println(q \ "Target")
-
-    println("--9--")
-    println((q \ "Target") \\ "@AttributeId")
-
-    println("--10--")
-    println(q \\ "@PolicyId")
-
-
-    def dropWhile[A](s: Stream[A])(p: A => Boolean): Stream[A] =
-      s.foldRight[Stream[A]](s)((_, stream) => if (p(stream.head)) {
-        println("IF: " + stream); stream.tail
-      } else {
-        println("ELSE: " + stream); stream
-      })
-
-    /*
-    IF: Stream(1, 2, 3, 7, 1, 2, 3, 4, 5, 6)
-    IF: Stream(2, 3, 7, 1, 2, 3, 4, 5, 6)
-    IF: Stream(3, 7, 1, 2, 3, 4, 5, 6)
-    ELSE: Stream(7, 1, 2, 3, 4, 5, 6)
-    ELSE: Stream(7, 1, 2, 3, 4, 5, 6)
-    ELSE: Stream(7, 1, 2, 3, 4, 5, 6)
-    ELSE: Stream(7, 1, 2, 3, 4, 5, 6)
-    ELSE: Stream(7, 1, 2, 3, 4, 5, 6)
-    ELSE: Stream(7, 1, 2, 3, 4, 5, 6)
-    ELSE: Stream(7, 1, 2, 3, 4, 5, 6)
-*/
-    //Stream(7, 1, 2, 3, 4, 5, 6)
-    println(dropWhile[Int](Stream[Int](1, 2, 3, 7, 1, 2, 3, 4, 5, 6))(_ < 5))
-
-    //    Stack Overflow
-    //    def nats(n:Int):Stream[Int] = Stream.cons[Int](1, nats(n+1))
-    //    println(dropWhile[Int](nats(1))(_<5))
-
-    def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = f(z) match {
-      case Some((h, s)) => Stream.cons(h, unfold(s)(f))
-      case None => Empty
-    }
-
-    val nats: Stream[Int] =
-      unfold[Int, Int](1)(n => Some((n, n + 2)))
-
-    println(nats.take(5).toList)
-
+//
+//    var p = policy.toString()
+//    var q = scala.xml.XML.loadString(p);
+//    // q = scala.xml.XML.load(url:URL) // URL로 파일에 접근하는 것도 가능한 듯
+//
+//    // \는 직계 자손중에서 찾고
+//    // \\는 직계 아닌것도 다 찾음, 한개면 Elem, 여러개면 NodeSeq
+//    // https://medium.com/@harittweets/working-with-xml-in-scala-bd6271a1e178
+//
+//    println("--1--")
+//    println(q.last)
+//    println("--2--")
+//    println((q \ "kkk") match {case NodeSeq.Empty => 'a'})
+//    println("--3--")
+//    println((q \\ "Condition").last)
+//    println("--4--")
+//    println(q \\ "Condition" \ "Apply")
+//    println("--5--")
+//    println(q \ "Condition" \ "Apply")
+//    println("--6--")
+//    println(q \ "AttributeDesignator")
+//    println("--7--")
+//    println(q \ "Apply")
+//    println("--8--")
+//    println(q \ "Target")
+//
+//    println("--9--")
+//    println((q \ "Target") \\ "@AttributeId")
+//
+//    println("--10--")
+//    println(q \\ "@PolicyId")
+    println(Grammar.parseAll(policy))
   }
-
-
+  
 }
 
 object Main extends App {
