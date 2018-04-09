@@ -74,11 +74,11 @@ class XACMLParser {
     // https://medium.com/@harittweets/working-with-xml-in-scala-bd6271a1e178
 
     println("--1--")
-    println (q.getClass)
+    println(q.last)
     println("--2--")
-    println(q \ "Condition")
+    println((q \ "kkk") match {case NodeSeq.Empty => 'a'})
     println("--3--")
-    println(q \\ "Condition")
+    println((q \\ "Condition").last)
     println("--4--")
     println(q \\ "Condition" \ "Apply")
     println("--5--")
@@ -97,8 +97,12 @@ class XACMLParser {
     println(q \\ "@PolicyId")
 
 
-    def dropWhile[A](s:Stream[A])(p:A=>Boolean):Stream[A] =
-      s.foldRight[Stream[A]](s)((_, stream)=> if(p(stream.head)) {println("IF: "+stream); stream.tail} else {println("ELSE: "+stream); stream})
+    def dropWhile[A](s: Stream[A])(p: A => Boolean): Stream[A] =
+      s.foldRight[Stream[A]](s)((_, stream) => if (p(stream.head)) {
+        println("IF: " + stream); stream.tail
+      } else {
+        println("ELSE: " + stream); stream
+      })
 
     /*
     IF: Stream(1, 2, 3, 7, 1, 2, 3, 4, 5, 6)
@@ -113,24 +117,27 @@ class XACMLParser {
     ELSE: Stream(7, 1, 2, 3, 4, 5, 6)
 */
     //Stream(7, 1, 2, 3, 4, 5, 6)
-    println(dropWhile[Int](Stream[Int](1,2,3,7,1,2,3,4,5,6))(_<5))
+    println(dropWhile[Int](Stream[Int](1, 2, 3, 7, 1, 2, 3, 4, 5, 6))(_ < 5))
 
-//    Stack Overflow
-//    def nats(n:Int):Stream[Int] = Stream.cons[Int](1, nats(n+1))
-//    println(dropWhile[Int](nats(1))(_<5))
+    //    Stack Overflow
+    //    def nats(n:Int):Stream[Int] = Stream.cons[Int](1, nats(n+1))
+    //    println(dropWhile[Int](nats(1))(_<5))
 
     def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = f(z) match {
-        case Some((h,s)) => Stream.cons(h, unfold(s)(f))
-             case None => Empty
-           }
+      case Some((h, s)) => Stream.cons(h, unfold(s)(f))
+      case None => Empty
+    }
 
     val nats: Stream[Int] =
-      unfold[Int, Int](1)(n => Some((n, n+2)))
+      unfold[Int, Int](1)(n => Some((n, n + 2)))
 
     println(nats.take(5).toList)
 
   }
 
 
+}
 
+object Main extends App {
+  new XACMLParser().printX
 }
