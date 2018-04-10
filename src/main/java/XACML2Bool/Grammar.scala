@@ -45,7 +45,7 @@ sealed trait BooleanTree{
   sealed abstract class TTree
   case class PSTree(target: Target, policies: BOTree[PTree]) extends TTree
   case class PTree(target: Target, rules: BOTree[RTree]) extends TTree
-  case class RTree(target: Target, condition: CTree) extends TTree
+  case class RTree(target: Target, condition: CTree, effect: String) extends TTree
   case class Target(matchTree: CTree) extends TTree
 
   sealed abstract class CTree
@@ -116,7 +116,7 @@ object Grammar extends BooleanTree {
     val algID = "RuleCombiningAlgId"
     val ruleCombAlg = policy.attribute(algID) match {
       case Some(nodeSeq) => nodeSeq.head.text //문법대로라면 하나밖에 없으니까 복수개의 policyCombiningAlgorithm은 핸들링하지 않음
-      case None => throw new ParseException("no ruleCombiningAlg")//Handling No PolicyCombining Algorithm : 디폴트 적용하거나 예외 던지거나.
+      case None => throw new ParseException("No ruleCombiningAlg")//Handling No PolicyCombining Algorithm : 디폴트 적용하거나 예외 던지거나.
     }
 
     val target = parseTarget((policy \ "Target").headOption)
@@ -126,7 +126,13 @@ object Grammar extends BooleanTree {
 
   /** Parse Rules **/
   def parseRuleList(rules: NodeSeq, ruleCombAlg: String): BOTree[RTree] = {
-    val leaves = rules.map(rule => BOLeaf(parseRule(rule)))
+    val leaves = rules.map(rule => {
+        val rtree = parseRule(rule)
+        val leaf = BOLeaf(rtree)
+        // Permit이 아닌 경우 Negation 추가
+        if(!rtree.effect.equalsIgnoreCase("Permit")) Negation(leaf) else leaf
+      }
+    )
     ruleCombAlg match {
       case "urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:permit-overrides" =>
         leaves.reduce[BOTree[RTree]](Disjunction(_, _))
@@ -143,7 +149,8 @@ object Grammar extends BooleanTree {
   def parseRule(rule: Node): RTree = {
     val target = parseTarget((rule \ "Target").headOption)
     val condition = parseCondition((rule \ "Condition").headOption)
-    RTree(target, condition)
+    val effect = (rule \ "@Effect").text
+    RTree(target, condition, effect)
   }
 
   /** Parse Target Tag **/
