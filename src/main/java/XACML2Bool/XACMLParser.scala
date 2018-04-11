@@ -12,7 +12,7 @@ class XACMLParser {
   def printHello = println("Hello!")
   var policy = <PolicySet           PolicySetId="urn:oasis:names:tc:xacml:3.0:example:policysetid:1"
                                     Version="1.0"
-                                    PolicyCombiningAlgId="urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:deny-overrides">
+                                    PolicyCombiningAlgId="urn:oasis:names:tc:xacml:3.0:policy-combining-algorithm:deny-overrides">
     <Description> Example policy set. </Description>
     <Target>
       <AnyOf>
@@ -29,7 +29,7 @@ class XACMLParser {
     </Target>
     <PolicyIdReference> urn:oasis:names:tc:xacml:3.0:example:policyid:3 </PolicyIdReference>
     <Policy PolicyId="urn:oasis:names:tc:xacml:3.0:example:policyid:2"
-            RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:deny-overrides"
+            RuleCombiningAlgId="urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:permit-unless-deny"
             Version="1.0">
       <Target/>
       <Rule RuleId="urn:oasis:names:tc:xacml:3.0:example:ruleid:1" Effect="Permit"/>
@@ -38,7 +38,7 @@ class XACMLParser {
     </Policy>
 
     <Policy PolicyId="urn:oasis:names:tc:xacml:3.0:example:policyid:2"
-            RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:deny-overrides"
+            RuleCombiningAlgId="urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:permit-unless-deny"
             Version="1.0">
       <Target/>
       <Rule RuleId="urn:oasis:names:tc:xacml:3.0:example:ruleid:1" Effect="Permit"/>
@@ -47,7 +47,7 @@ class XACMLParser {
     </Policy>
 
     <Policy PolicyId="urn:oasis:names:tc:xacml:3.0:example:policyid:2"
-            RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:deny-overrides"
+            RuleCombiningAlgId="urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:permit-unless-deny"
             Version="1.0">
       <Target/>
       <Rule RuleId="urn:oasis:names:tc:xacml:3.0:example:ruleid:1" Effect="Permit"/>
