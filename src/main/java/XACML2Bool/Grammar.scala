@@ -70,16 +70,14 @@ object Grammar extends BooleanTree {
   /** Parse whole XML **/
   def parseAll(xml: Elem): BOTree[TTree] = {
     val label = xml.label.equalsIgnoreCase(_)
-    if (label("PolicySet")) {
-      BOLeaf(parsePolicySet(xml))
-    } else if (label("Policy")) {
-      BOLeaf(parsePolicy(xml))
-    } else throw new ParseException("Not PolicySet or Policy") //Handle Exception
+    if(label("PolicySet")) BOLeaf(parsePolicySet(xml))
+    else if (label("Policy")) BOLeaf(parsePolicy(xml))
+    else throw new ParseException("Not PolicySet or Policy") //Handle Exception
   }
 
   /** Parse 1 PolicySet Tag **/
   def parsePolicySet(policySet: Elem):PSTree = {
-    val algID = "PolicySetId"
+    val algID = "PolicyCombiningAlgId"
     val policyCombAlg = policySet.attribute(algID) match {
       case Some(nodeSeq) => nodeSeq.lastOption.get.text // getOrElse 사용한 예외 처리는 필요 없을 듯
       case None => throw new ParseException("No PolicyCombiningAlg")//Handling No PolicyCombining Algorithm : 디폴트 적용하거나 예외 던지거나.
@@ -102,23 +100,21 @@ object Grammar extends BooleanTree {
         leaves.reduce[BOTree[PTree]](Disjunction(_, _)) // Permit 이 하나라도 있으면 Permit 아니면 Deny
       case "urn:oasis:names:tc:xacml:3.0:policy-combining-algorithm:permit-unless-deny" =>
         leaves.reduce[BOTree[PTree]](Conjunction(_, _)) // Deny 가 하나라도 있으면 Deny 아니면 Permit
+      case _ => throw new ParseException("No Such Policy Combining Algorithm")
     }
   }
 
   /** Parse 1 Policy Tag (parseAll 에서의 호출 때문에 오버로딩함) **/
-  def parsePolicy(policy: Elem): PTree = {
+  def parsePolicy(policy: Elem): PTree =
     parsePolicy(policy.last)
-  }
 
   /** Parse 1 Policy Tag **/
   def parsePolicy(policy: Node): PTree = {
-
     val algID = "RuleCombiningAlgId"
     val ruleCombAlg = policy.attribute(algID) match {
       case Some(nodeSeq) => nodeSeq.head.text //문법대로라면 하나밖에 없으니까 복수개의 policyCombiningAlgorithm은 핸들링하지 않음
       case None => throw new ParseException("No ruleCombiningAlg")//Handling No PolicyCombining Algorithm : 디폴트 적용하거나 예외 던지거나.
     }
-
     val target = parseTarget((policy \ "Target").headOption)
     val rules = parseRuleList((policy \ "Rule"), ruleCombAlg)
     PTree(target, rules)
@@ -133,6 +129,7 @@ object Grammar extends BooleanTree {
         if(!rtree.effect.equalsIgnoreCase("Permit")) Negation(leaf) else leaf
       }
     )
+    
     ruleCombAlg match {
       case "urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:permit-overrides" =>
         leaves.reduce[BOTree[RTree]](Disjunction(_, _))
@@ -142,6 +139,7 @@ object Grammar extends BooleanTree {
         leaves.reduce[BOTree[RTree]](Disjunction(_, _))
       case "urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:permit-unless-deny" =>
         leaves.reduce[BOTree[RTree]](Conjunction(_, _))
+      case _ => throw new ParseException("No Such Rule Combining Algorithm")
     }
   }
 
@@ -157,7 +155,7 @@ object Grammar extends BooleanTree {
   def parseTarget(target: Option[Node]): Target =
     target match {
       case Some(t) => {
-        val anyOfList = (t \ "AnyOf").map(parseAnyOf).reduce(And(_, _))
+        val anyOfList = if(t \ "AnyOf" isEmpty) Any else (t \ "AnyOf").map(parseAnyOf).reduce(And(_, _))
         Target(anyOfList)
       }
       case None => Target(Any)
@@ -189,7 +187,7 @@ object Grammar extends BooleanTree {
 
   def catalog = Map(("function:and", And), ("function:or", Or), ("function:not", Not))
   def parseApply(apply: NodeSeq): CTree = {
-    val functionId = (apply \ "@FunctionId").toString()
+    val functionId = (apply \ "@FunctionId").text
     val tuple = catalog.find(f => functionId contains f._1)
     val params = (apply \ "Apply")
     tuple match {
