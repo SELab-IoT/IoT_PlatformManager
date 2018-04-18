@@ -1,6 +1,5 @@
 package XACML2Bool
-import scala.collection.immutable.Stream.Empty
-import scala.xml._
+
 /** Boolean Expression의 문법 표현 후 sat4j에 알맞는 형태로 변환 **/
 /***********************************************************************************************
 // Boolean Operator Tree : CNF든 Boolean 식이든 나타내기 위한 최상위 연결 트리
@@ -31,41 +30,14 @@ BFTree ::= And(CTree, CTree) | Or(CTree, CTree) | Not(CTree)
 // Boolean Expression Tree : Boolean을 반환하는 비교식(Greater Than, Less Than, Equal, ...)을 표현하기 위한 트리
 /* 각 비교식은 0차에서는 직접 평가할 필요 없이 a, b, c 등으로 치환 가능하다. */
 BETree ::= GreaterThan(Number, Number) | LessThan(Number, Number) | Equal(String, String) | ...
-***********************************************************************************************/
+  ***********************************************************************************************/
 
-sealed trait BooleanTree{
-  sealed abstract class BOTree[T<:TTree]
-  case class Conjunction[T<:TTree](left: BOTree[T], right: BOTree[T]) extends BOTree[T]
-  case class Disjunction[T<:TTree](left: BOTree[T], right: BOTree[T]) extends BOTree[T]
-  case class Negation[T<:TTree](term: BOTree[T]) extends BOTree[T]
-  case class BOLeaf[T<:TTree](term: T) extends BOTree[T]
+import XACML2Bool.SyntaxTree._
+import scala.xml._
 
-  //Term의 기준은 각 정책 집합, 정책, 규칙을 하나의 텀으로 본다.
-  //Target을 추후 BOTree로 묶기 위해 TTree를 상속시킴(사실 일종의 텀으로 볼 수도 있으므로..).
-  sealed abstract class TTree
-  case class PSTree(target: Target, policies: BOTree[PTree]) extends TTree
-  case class PTree(target: Target, rules: BOTree[RTree]) extends TTree
-  case class RTree(target: Target, condition: CTree, effect: String) extends TTree
-  case class Target(matchTree: CTree) extends TTree
+object Parser{
 
-  sealed abstract class CTree
-  case object Any extends CTree
-
-  sealed abstract class BFTree extends CTree
-  case class And(left: CTree, right: CTree) extends BFTree
-  case class Or(left: CTree, right: CTree) extends BFTree
-  case class Not(cond: CTree) extends BFTree
-
-  sealed abstract class BETree extends CTree
-  case class Equal[A, B](a:A, b:B) extends BETree
-  case class GreaterThan[A, B](a:A, b:B) extends BETree
-  case class AnyBinaryExp[A, B](op:String, a:A, b:B) extends BETree
-  //  And so on... in BETree
-}
-
-final case class ParseException(private val message: String="", private val cause: Throwable = None.orNull) extends Exception(message, cause)
-
-object Grammar extends BooleanTree {
+  final case class ParseException(private val message: String="", private val cause: Throwable = None.orNull) extends Exception(message, cause)
 
   /** Parse whole XML **/
   def parseAll(xml: Elem): BOTree[TTree] = {
@@ -129,7 +101,7 @@ object Grammar extends BooleanTree {
         if(!rtree.effect.equalsIgnoreCase("Permit")) Negation(leaf) else leaf
       }
     )
-    
+
     ruleCombAlg match {
       case "urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:permit-overrides" =>
         leaves.reduce[BOTree[RTree]](Disjunction(_, _))
