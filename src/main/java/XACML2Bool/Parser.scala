@@ -40,10 +40,10 @@ object Parser{
   final case class ParseException(private val message: String="", private val cause: Throwable = None.orNull) extends Exception(message, cause)
 
   /** Parse whole XML **/
-  def parseAll(xml: Elem): BOTree[TTree] = {
+  def parseAll(xml: Elem): SyntaxTree = {
     val label = xml.label.equalsIgnoreCase(_)
-    if(label("PolicySet")) BOLeaf(parsePolicySet(xml))
-    else if (label("Policy")) BOLeaf(parsePolicy(xml))
+    if(label("PolicySet")) parsePolicySet(xml)
+    else if (label("Policy")) parsePolicy(xml)
     else throw new ParseException("Not PolicySet or Policy") //Handle Exception
   }
 
@@ -97,7 +97,7 @@ object Parser{
     val leaves = rules.map(rule => {
         val rtree = parseRule(rule)
         val leaf = BOLeaf(rtree)
-        // Permit이 아닌 경우 Negation 추가
+        // Effect가 Permit이 아닌 경우 Negation 추가
         if(!rtree.effect.equalsIgnoreCase("Permit")) Negation(leaf) else leaf
       }
     )
