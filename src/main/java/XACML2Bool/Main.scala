@@ -4,50 +4,186 @@ import scala.xml._
 
 class Main {
 
-  var policy = <PolicySet           PolicySetId="urn:oasis:names:tc:xacml:3.0:example:policysetid:1"
-                                    Version="1.0"
-                                    PolicyCombiningAlgId="urn:oasis:names:tc:xacml:3.0:policy-combining-algorithm:deny-overrides">
-    <Description> Example policy set. </Description>
+  var policy = <PolicySet xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" PolicySetId="ChildrenPolicy"
+                          PolicyCombiningAlgId="urn:oasis:names:tc:xacml:3.0:policy-combining-algorithm:deny-overrides" Version="1.0">
     <Target>
       <AnyOf>
         <AllOf>
           <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:example:med:schema:records</AttributeValue>
-            <AttributeDesignator MustBePresent="false"
-                                 Category="urn:oasis:names:tc:xacml:3.0:attribute-category:resource"
-                                 AttributeId="urn:oasis:names:tc:xacml:2.0:resource:target-namespace"
-                                 DataType="http://www.w3.org/2001/XMLSchema#string"/>
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">children</AttributeValue>
+            <AttributeDesignator
+            MustBePresent="true"
+            Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject"
+            AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id"
+            DataType="http://www.w3.org/2001/XMLSchema#string"/>
           </Match>
         </AllOf>
       </AnyOf>
     </Target>
-    <PolicyIdReference> urn:oasis:names:tc:xacml:3.0:example:policyid:3 </PolicyIdReference>
-    <Policy PolicyId="urn:oasis:names:tc:xacml:3.0:example:policyid:2"
-            RuleCombiningAlgId="urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:permit-unless-deny"
-            Version="1.0">
-      <Target/>
-      <Rule RuleId="urn:oasis:names:tc:xacml:3.0:example:ruleid:1" Effect="Permit"/>
-      <Rule RuleId="urn:oasis:names:tc:xacml:3.0:example:ruleid:2" Effect="Permit"/>
-      <Rule RuleId="urn:oasis:names:tc:xacml:3.0:example:ruleid:4" Effect="Deny"/>
+
+    <Policy xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" PolicyId="ChildrenGeneralPolicy"
+            RuleCombiningAlgId="urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:permit-unless-deny" Version="1.0">
+      <Target>
+        <AnyOf>
+          <AllOf>
+            <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+              <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">children</AttributeValue>
+              <AttributeDesignator
+              MustBePresent="true"
+              Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject"
+              AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id"
+              DataType="http://www.w3.org/2001/XMLSchema#string"/>
+            </Match>
+          </AllOf>
+        </AnyOf>
+      </Target>
+      <Rule RuleId="permit-rule" Effect="Permit">
+
+      </Rule>
+    </Policy>
+    <Policy xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" PolicyId="ChildrenGasStovePolicy"
+            RuleCombiningAlgId="urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:deny-overrides" Version="1.0">
+      <Target>
+        <AnyOf>
+          <AllOf>
+            <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+              <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">children</AttributeValue>
+              <AttributeDesignator
+              MustBePresent="true"
+              Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject"
+              AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id"
+              DataType="http://www.w3.org/2001/XMLSchema#string"/>
+            </Match>
+            <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+              <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">gas_stove</AttributeValue>
+              <AttributeDesignator
+              MustBePresent="true"
+              Category="urn:oasis:names:tc:xacml:3.0:attribute-category:resource"
+              AttributeId="urn:oasis:names:tc:xacml:1.0:resource:resource-id"
+              DataType="http://www.w3.org/2001/XMLSchema#string"/>
+            </Match>
+          </AllOf>
+        </AnyOf>
+      </Target>
+      <Rule RuleId="deny-rule" Effect="Deny">
+
+      </Rule>
+    </Policy>
+    <Policy xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" PolicyId="ChildrenFridgePolicy"
+            RuleCombiningAlgId="urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:deny-overrides" Version="1.0">
+      <Target>
+        <AnyOf>
+          <AllOf>
+            <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+              <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">children</AttributeValue>
+              <AttributeDesignator
+              MustBePresent="true"
+              Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject"
+              AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id"
+              DataType="http://www.w3.org/2001/XMLSchema#string"/>
+            </Match>
+            <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+              <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">fridge</AttributeValue>
+              <AttributeDesignator
+              MustBePresent="true"
+              Category="urn:oasis:names:tc:xacml:3.0:attribute-category:resource"
+              AttributeId="urn:oasis:names:tc:xacml:1.0:resource:resource-id"
+              DataType="http://www.w3.org/2001/XMLSchema#string"/>
+            </Match>
+          </AllOf>
+        </AnyOf>
+      </Target>
+      <Rule RuleId="deny-rule" Effect="Deny">
+        <Target>
+          <AnyOf>
+            <AllOf>
+              <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Take off</AttributeValue>
+                <AttributeDesignator
+                MustBePresent="true"
+                Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action"
+                AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id"
+                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+              </Match>
+            </AllOf>
+          </AnyOf>
+        </Target>
+        <Condition>
+          <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">food</AttributeValue>
+            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+              <AttributeDesignator AttributeId="food" Category="fridge"
+                                   DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+            </Apply>
+          </Apply>
+        </Condition>
+      </Rule>
+    </Policy>
+    <Policy xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" PolicyId="ChildrenCupboardPolicy"
+            RuleCombiningAlgId="urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:deny-overrides" Version="1.0">
+      <Target>
+        <AnyOf>
+          <AllOf>
+            <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+              <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">children</AttributeValue>
+              <AttributeDesignator
+              MustBePresent="true"
+              Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject"
+              AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id"
+              DataType="http://www.w3.org/2001/XMLSchema#string"/>
+            </Match>
+            <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+              <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">cupboard</AttributeValue>
+              <AttributeDesignator
+              MustBePresent="true"
+              Category="urn:oasis:names:tc:xacml:3.0:attribute-category:resource"
+              AttributeId="urn:oasis:names:tc:xacml:1.0:resource:resource-id"
+              DataType="http://www.w3.org/2001/XMLSchema#string"/>
+            </Match>
+          </AllOf>
+        </AnyOf>
+      </Target>
+      <Rule RuleId="deny-rule" Effect="Deny">
+
+      </Rule>
+    </Policy>
+    <Policy xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" PolicyId="ChildrenCookerPolicy"
+            RuleCombiningAlgId="urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:deny-unless-permit" Version="1.0">
+      <Target>
+        <AnyOf>
+          <AllOf>
+            <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+              <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">children</AttributeValue>
+              <AttributeDesignator
+              MustBePresent="true"
+              Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject"
+              AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id"
+              DataType="http://www.w3.org/2001/XMLSchema#string"/>
+            </Match>
+            <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+              <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">cooker</AttributeValue>
+              <AttributeDesignator
+              MustBePresent="true"
+              Category="urn:oasis:names:tc:xacml:3.0:attribute-category:resource"
+              AttributeId="urn:oasis:names:tc:xacml:1.0:resource:resource-id"
+              DataType="http://www.w3.org/2001/XMLSchema#string"/>
+            </Match>
+          </AllOf>
+        </AnyOf>
+      </Target>
+      <Rule RuleId="permit-rule" Effect="Permit">
+        <Condition>
+          <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">parents</AttributeValue>
+            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+              <AttributeDesignator AttributeId="assist" Category="cook"
+                                   DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+            </Apply>
+          </Apply>
+        </Condition>
+      </Rule>
     </Policy>
 
-    <Policy PolicyId="urn:oasis:names:tc:xacml:3.0:example:policyid:2"
-            RuleCombiningAlgId="urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:permit-unless-deny"
-            Version="1.0">
-      <Target/>
-      <Rule RuleId="urn:oasis:names:tc:xacml:3.0:example:ruleid:1" Effect="Permit"/>
-      <Rule RuleId="urn:oasis:names:tc:xacml:3.0:example:ruleid:2" Effect="Permit"/>
-      <Rule RuleId="urn:oasis:names:tc:xacml:3.0:example:ruleid:4" Effect="Deny"/>
-    </Policy>
-
-    <Policy PolicyId="urn:oasis:names:tc:xacml:3.0:example:policyid:2"
-            RuleCombiningAlgId="urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:permit-unless-deny"
-            Version="1.0">
-      <Target/>
-      <Rule RuleId="urn:oasis:names:tc:xacml:3.0:example:ruleid:1" Effect="Permit"/>
-      <Rule RuleId="urn:oasis:names:tc:xacml:3.0:example:ruleid:2" Effect="Permit"/>
-      <Rule RuleId="urn:oasis:names:tc:xacml:3.0:example:ruleid:4" Effect="Deny"/>
-    </Policy>
   </PolicySet>
 
 
@@ -68,18 +204,18 @@ class Main {
     //Interpreter Test
     val sat = Interpreter.interpretAll(syntaxTree)
     println("SAT: " + sat)
-
-    //CNFConverter Test
-    val cnf = CNFConverter.convertSAT2CNF(sat)
-    println("CNF: " + cnf)
+//
+//    //CNFConverter Test
+//    val cnf = CNFConverter.convertSAT2CNF(sat)
+//    println("CNF: " + cnf)
 
   }
 
   def process(xacml:String)= {
 
-    def readPolicy(filename:String):Elem = ???
+    def readPolicy(filename:String):Elem = this policy
 
-    def writeFile(filename:String, content:String) = ???
+    def writeFile(filename:String, content:String) = 1
 
     val policy = readPolicy(xacml)
 
