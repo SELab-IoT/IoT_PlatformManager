@@ -1,5 +1,7 @@
 package XACML2Bool
 
+import XACML2Bool.Interpreter._
+
 import scala.xml._
 
 class Main {
@@ -202,8 +204,21 @@ class Main {
     println("SyntaxTree: " + syntaxTree)
 
     //Interpreter Test
-    val sat = Interpreter.interpretAll(syntaxTree)
-    println("SAT: " + sat)
+
+    def interpretVia(mode:Mode) =
+      if(mode is "Permit") PermitInterpreter
+      else if(mode is "Deny") DenyInterpreter
+      else throw new Exception("Permit/Deny Only")
+
+    val onPermitMode = interpretVia(Permit)
+    val onDenyMode = interpretVia(Deny)
+
+    val permitSat = onPermitMode interpretAll syntaxTree
+    val denySat = onDenyMode interpretAll syntaxTree
+
+    println("OnPermit SAT: " + permitSat)
+    println("OnDeny SAT: " + denySat)
+
 //
 //    //CNFConverter Test
 //    val cnf = CNFConverter.convertSAT2CNF(sat)
@@ -220,10 +235,10 @@ class Main {
     val policy = readPolicy(xacml)
 
     val syntaxTree = Parser.parseAll(policy)
-    val sat = Interpreter.interpretAll(syntaxTree)
-    val cnf = CNFConverter.convertSAT2CNF(sat)
+//    val sat = Interpreter.interpretAll(syntaxTree)
+//    val cnf = CNFConverter.convertSAT2CNF(sat)
 
-    writeFile(xacml+".cnf", cnf)
+//    writeFile(xacml+".cnf", cnf)
 
   }
 

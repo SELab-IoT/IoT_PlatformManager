@@ -1,5 +1,7 @@
 package XACML2Bool
 
+import XACML2Bool.Interpreter.Mode
+
 /** Boolean Expression의 문법 표현 후 sat4j에 알맞는 형태로 변환 **/
 /***********************************************************************************************
 // Boolean Operator Tree : CNF든 Boolean 식이든 나타내기 위한 최상위 연결 트리
@@ -36,35 +38,37 @@ object SyntaxTree {
 
   trait SyntaxTree
 
-  sealed abstract class BOTree[T <: TTree] extends SyntaxTree
-  case class Conjunction[T <: TTree](left: BOTree[T], right: BOTree[T]) extends BOTree[T]
-  case class Disjunction[T <: TTree](left: BOTree[T], right: BOTree[T]) extends BOTree[T]
+  sealed trait BOTree[T <: TTree] extends SyntaxTree
+  case class Conjunction[T <: TTree](terms: BOTree[T]*) extends BOTree[T]
+  case class Disjunction[T <: TTree](terms: BOTree[T]*) extends BOTree[T]
   case class Negation[T <: TTree](term: BOTree[T]) extends BOTree[T]
-  case class BOLeaf[T <: TTree](term: T) extends BOTree[T]
+  case class Term[T <: TTree](term: T) extends BOTree[T]
+  case object TrueTerm extends BOTree[RTree]
+  case object FalseTerm extends BOTree[RTree]
 
   //Term의 기준은 각 정책 집합, 정책, 규칙을 하나의 텀으로 본다.
   //Target을 추후 BOTree로 묶기 위해 TTree를 상속시킴(사실 일종의 텀으로 볼 수도 있으므로..).
-  sealed abstract class TTree extends SyntaxTree
+  sealed trait TTree extends SyntaxTree
   case class PSTree(target: Target, policies: Combine[PTree]) extends TTree
   case class PTree(target: Target, rules: Combine[RTree]) extends TTree
-  case class RTree(target: Target, condition: CTree, effect: String) extends TTree
+  case class RTree(target: Target, condition: CTree, effect: Mode) extends TTree
   case class Target(matchTree: CTree) extends TTree
 
-  sealed abstract class Combine[T<:TTree]
-  case class PO[T <: TTree](terms:Seq[T]) extends Combine[T]
-  case class DO[T <: TTree](terms:Seq[T]) extends Combine[T]
-  case class DuP[T <: TTree](terms:Seq[T]) extends Combine[T]
-  case class PuD[T <: TTree](terms:Seq[T]) extends Combine[T]
+  sealed trait Combine[-T<:TTree] extends SyntaxTree
+  case class PO[T <: TTree](terms:T*) extends Combine[T]
+  case class DO[T <: TTree](terms:T*) extends Combine[T]
+  case class DuP[T <: TTree](terms:T*) extends Combine[T]
+  case class PuD[T <: TTree](terms:T*) extends Combine[T]
 
-  sealed abstract class CTree extends SyntaxTree
+  sealed trait CTree extends SyntaxTree
   case object Any extends CTree
 
-  sealed abstract class BFTree extends CTree
+  sealed trait BFTree extends CTree
   case class And(left: CTree, right: CTree) extends BFTree
   case class Or(left: CTree, right: CTree) extends BFTree
   case class Not(cond: CTree) extends BFTree
 
-  sealed abstract class BETree extends CTree
+  sealed trait BETree extends CTree
   case class Equal[A, B](a: A, b: B) extends BETree
   case class GreaterThan[A, B](a: A, b: B) extends BETree
   case class AnyBinaryExp[A, B](op: String, a: A, b: B) extends BETree
