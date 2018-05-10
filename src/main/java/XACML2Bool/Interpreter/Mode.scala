@@ -1,6 +1,6 @@
 package XACML2Bool.Interpreter
 
-trait Mode{
+sealed trait Mode{
   def is(mode:String):Boolean
 }
 

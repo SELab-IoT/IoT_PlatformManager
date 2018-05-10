@@ -54,7 +54,7 @@ object SyntaxTree {
   case class RTree(target: Target, condition: CTree, effect: Mode) extends TTree
   case class Target(matchTree: CTree) extends TTree
 
-  sealed trait Combine[-T<:TTree] extends SyntaxTree
+  sealed trait Combine[T<:TTree] extends SyntaxTree
   case class PO[T <: TTree](terms:T*) extends Combine[T]
   case class DO[T <: TTree](terms:T*) extends Combine[T]
   case class DuP[T <: TTree](terms:T*) extends Combine[T]

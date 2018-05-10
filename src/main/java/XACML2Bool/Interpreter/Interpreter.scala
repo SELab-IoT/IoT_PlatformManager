@@ -1,32 +1,23 @@
 package XACML2Bool.Interpreter
 
 import XACML2Bool.SyntaxTree._
+import Builder._
 
 // SyntaxTree to SAT String
-abstract class Interpreter extends ICombineInterpreter with IRuleInterpreter {
+abstract class Interpreter extends IRTreeInterpreter{
 
   var uuid:Long = 0
   var terms:Map[String, Long] = Map()
 
   final case class InterpretException(private val message: String="", private val cause: Throwable = None.orNull) extends Exception(message, cause)
 
-  def con(terms:String*):String = buildWith("*", terms)
-  def dis(terms:String*):String = buildWith("+", terms)
-  def neg(n:String):String = "-" + n
-
-  def buildWith(op:String, terms:Seq[String]):String = op + joinSeq(terms)
-
-  def wrap(n:String):String = "(" + n + ")"
-  def joinAll(n: String*):String = joinSeq(n)
-  def joinSeq(n: Seq[String]):String = wrap(n.reduce(_+" "+_))
-
-  def interpretAll(syntaxTree: SyntaxTree):String = {
+  def interpretAll(syntaxTree: SyntaxTree):String =
     syntaxTree match {
       case policySet@PSTree(_, _) => interpretTTree(policySet)
       case policy@PTree(_, _) => interpretTTree(policy)
       case _ => throw InterpretException("Only PSTree and PTree can be root node")
     }
-  }
+
 
   def interpretTTree(tTree: TTree):String =
     tTree match {
@@ -35,26 +26,8 @@ abstract class Interpreter extends ICombineInterpreter with IRuleInterpreter {
       case RTree(t, cs, eff) => interpretRTree(t, cs, eff)
     }
 
-  def interpretPSTree(target: Target, policies: Combine[PTree]): String = {
-    val t = interpretTarget(t)
-    val ps = interpretCombinePolicies(policies)
-    wrap(con(t, ps))
-  }
-
-  def interpretPTree(target: Target, rules: Combine[RTree]): String = {
-    val t = interpretTarget(t)
-    val rs = interpretCombineRules(rules)
-    wrap(con(t, rs))
-  }
-
-  def interpretBOTree[T<:TTree](boTree: BOTree[T]):String =
-    boTree match {
-      case Conjunction(terms) => con(interpretBOTree(terms))
-      case Disjunction(terms) => dis(interpretBOTree(terms))
-      case Negation(term) => neg(interpretBOTree(term))
-      case Term(term) => interpretTTree(term)
-    }
-
+  def interpretPSTree(target: Target, policies: Combine[PTree]): String
+  def interpretPTree(target: Target, rules: Combine[RTree]): String
   def interpretTarget(target: Target):String = interpretCTree(target.matchTree)
 
   def interpretCTree(cTree: CTree):String =
@@ -84,5 +57,15 @@ abstract class Interpreter extends ICombineInterpreter with IRuleInterpreter {
     }
     term.toString
   }
+
+
+  //이거 실제로 필요한지 나중에 보고 필요없으면 BOTree 째로 지울 듯
+  def interpretBOTree[T<:TTree](boTree: BOTree[T]):String =
+    boTree match {
+      case Conjunction(terms @ _*) => con(terms map interpretBOTree:_*)
+      case Disjunction(terms @ _*) => dis(terms map interpretBOTree:_*)
+      case Negation(term) => neg(interpretBOTree(term))
+      case Term(term) => interpretTTree(term)
+    }
 
 }
