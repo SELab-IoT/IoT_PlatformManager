@@ -1,13 +1,13 @@
 package XACML2Bool
 
-import XACML2Bool.Interpreter._
-
 import scala.xml._
+import Interpreter._
+import XACML2Bool.Parser.XACMLParser
 
 class Main {
 
-  var policy = <PolicySet xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" PolicySetId="ChildrenPolicy"
-                          PolicyCombiningAlgId="urn:oasis:names:tc:xacml:3.0:policy-combining-algorithm:deny-overrides" Version="1.0">
+  var policy: Elem = <PolicySet xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" PolicySetId="ChildrenPolicy"
+                                PolicyCombiningAlgId="urn:oasis:names:tc:xacml:3.0:policy-combining-algorithm:deny-overrides" Version="1.0">
     <Target>
       <AnyOf>
         <AllOf>
@@ -189,7 +189,7 @@ class Main {
   </PolicySet>
 
 
-  def printX = {
+  def printX(): Unit = {
 //
 //    var p = policy.toString()
 //    var q = scala.xml.XML.loadString(p);
@@ -200,24 +200,24 @@ class Main {
 //    // https://medium.com/@harittweets/working-with-xml-in-scala-bd6271a1e178
 
     //Parser Test
-    val syntaxTree = Parser.parseAll(policy)
+    val syntaxTree = XACMLParser.parseAll(policy)
     println("SyntaxTree: " + syntaxTree)
 
     //Interpreter Test
 
     def interpretVia(mode:Mode) =
       if(mode is "Permit") PermitInterpreter
-      else if(mode is "Deny") DenyInterpreter
+//      else if(mode is "Deny") DenyInterpreter
       else throw new Exception("Permit/Deny Only")
 
-    val onPermitMode = interpretVia(Permit)
-    val onDenyMode = interpretVia(Deny)
+    val onPermitMode:Interpreter = interpretVia(Permit)
+//    val onDenyMode:Interpreter = interpretVia(Deny)
 
     val permitSat = onPermitMode interpretAll syntaxTree
-    val denySat = onDenyMode interpretAll syntaxTree
+//    val denySat = onDenyMode interpretAll syntaxTree
 
     println("OnPermit SAT: " + permitSat)
-    println("OnDeny SAT: " + denySat)
+//    println("OnDeny SAT: " + denySat)
 
 //
 //    //CNFConverter Test
@@ -226,7 +226,7 @@ class Main {
 
   }
 
-  def process(xacml:String)= {
+  def process(xacml:String): Unit = {
 
     def readPolicy(filename:String):Elem = this policy
 
@@ -234,7 +234,7 @@ class Main {
 
     val policy = readPolicy(xacml)
 
-    val syntaxTree = Parser.parseAll(policy)
+    val syntaxTree = XACMLParser.parseAll(policy)
 //    val sat = Interpreter.interpretAll(syntaxTree)
 //    val cnf = CNFConverter.convertSAT2CNF(sat)
 
