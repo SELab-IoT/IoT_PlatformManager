@@ -39,14 +39,23 @@ abstract class Interpreter extends IRTreeInterpreter{
       //BETree
       case anyExp @ AnyBinaryExp(_, _, _) => interpretBETree(anyExp)
       //Any
-      case Any => "True"
+      case Any => TRUE
     }
 
+  //interpretCTree의 결과가 True일수도 False일수도 그냥 텀일수도 있음. => 핸들링 완료
   def interpretBFTree(bfTree: BFTree):String =
     bfTree match {
-      case And(l, r) => con(interpretCTree(l), interpretCTree(r))
-      case Or(l, r) => dis(interpretCTree(l), interpretCTree(r))
-      case Not(n) => neg(interpretCTree(n))
+      case And(l, r) =>
+        val left = interpretCTree(l)
+        val right = interpretCTree(r)
+        con(left, right)
+      case Or(l, r) =>
+        val left = interpretCTree(l)
+        val right = interpretCTree(r)
+        dis(left, right)
+      case Not(n) =>
+        val term = interpretCTree(n)
+        neg(term)
     }
 
   def interpretBETree(beTree: BETree):String = {
@@ -57,7 +66,6 @@ abstract class Interpreter extends IRTreeInterpreter{
     }
     term.toString
   }
-
 
   //이거 실제로 필요한지 나중에 보고 필요없으면 BOTree 째로 지울 듯
   def interpretBOTree[T<:TTree](boTree: BOTree[T]):String =
