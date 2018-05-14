@@ -43,8 +43,6 @@ object SyntaxTree {
   case class Disjunction[T <: TTree](terms: BOTree[T]*) extends BOTree[T]
   case class Negation[T <: TTree](term: BOTree[T]) extends BOTree[T]
   case class Term[T <: TTree](term: T) extends BOTree[T]
-  case object TrueTerm extends BOTree[RTree]
-  case object FalseTerm extends BOTree[RTree]
 
   //Term의 기준은 각 정책 집합, 정책, 규칙을 하나의 텀으로 본다.
   //Target을 추후 BOTree로 묶기 위해 TTree를 상속시킴(사실 일종의 텀으로 볼 수도 있으므로..).

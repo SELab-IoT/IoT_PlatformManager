@@ -3,6 +3,7 @@ package XACML2Bool.Interpreter
 import XACML2Bool.SyntaxTree._
 
 trait ICombineInterpreter[T <: TTree] {
+
   def True:Mode
   def interpretPO(terms: T*):String
   def interpretDO(terms: T*):String
