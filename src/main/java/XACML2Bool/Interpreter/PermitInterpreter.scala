@@ -12,6 +12,9 @@ TODO: 어쩌면 interpretPSTree는 다시 Interpreter로 옮겨갈 수도 있음
 */
 object PermitInterpreter extends Interpreter{
 
+  override def interpretPTree(target: Target, rules: Combine[RTree]): String =
+    PermitPolicyInterpreter.interpretPTree(target, rules)
+
   override def interpretPermitRTree(target: Target, condition: CTree): String =
     PermitRuleInterpreter.interpretPermitRTree(target, condition)
   override def interpretDenyRTree(target: Target, condition: CTree): String =
@@ -20,35 +23,29 @@ object PermitInterpreter extends Interpreter{
   def interpretPSTree(target: Target, policies: Combine[PTree]): String = {
     val t = interpretTarget(target)
     val ps = PermitPolicyInterpreter.interpretCombineAlgorithm(policies)
-    if(ps equals FALSE) FALSE //target & False = False
-    else if(ps equals TRUE) t //target & True = target
-    else wrap(con(t, ps)) //target & Combine(policies)
-  }
-
-  def interpretPTree(target: Target, rules: Combine[RTree]): String = {
-    val t = interpretTarget(target)
-    val rs = PermitRuleInterpreter.interpretCombineAlgorithm(rules)
-    if(rs equals FALSE) FALSE //target & False = False
-    else if(rs equals TRUE) t //target & True = target
-    else wrap(con(t, rs)) //target & Combine(rules)
+    con(t, ps) //target & Combine(policies)
   }
 
   //정책 조합
-  object PermitPolicyInterpreter extends ICombineInterpreter[PTree] {
-
-    def interpretPolicies(policies: PTree*) = policies.map(policy => interpretPTree(policy.target, policy.rules))
+  object PermitPolicyInterpreter extends GeneralPolicyCombineInterpreter {
 
     override def True: Mode = Permit
     //Permit = T ==> Disjunction All
     override def interpretPO(policies: PTree*): String =
-      dis(interpretPolicies(policies:_*):_*)
-    //Permit = T ==> Conjunction All
+      disjunctionAll(policies:_*)
     override def interpretDO(policies: PTree*): String =
-      con(interpretPolicies(policies:_*):_*)
-    //Permit = T ==> Disjunction All
-    override def interpretDuP(policies: PTree*): String = ???
-    //
-    override def interpretPuD(policies: PTree*): String = ???
+      conjunctionAll(policies:_*)
+    override def interpretDuP(policies: PTree*): String =
+      disjunctionAll(policies:_*)
+    override def interpretPuD(policies: PTree*): String =
+      conjunctionAll(policies:_*)
+
+    override def interpretPTree(target: Target, rules: Combine[RTree]): String = {
+      val t = interpretTarget(target)
+      val rs = PermitRuleInterpreter.interpretCombineAlgorithm(rules)
+      con(t, rs) //target & Combine(rules)
+    }
+
   }
 
   //규칙 조합

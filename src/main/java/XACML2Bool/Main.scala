@@ -207,17 +207,20 @@ class Main {
 
     def interpretVia(mode:Mode) =
       if(mode is "Permit") PermitInterpreter
-//      else if(mode is "Deny") DenyInterpreter
+      else if(mode is "Deny") DenyInterpreter
       else throw new Exception("Permit/Deny Only")
 
     val onPermitMode:Interpreter = interpretVia(Permit)
-//    val onDenyMode:Interpreter = interpretVia(Deny)
+    val onDenyMode:Interpreter = interpretVia(Deny)
 
     val permitSat = onPermitMode interpretAll syntaxTree
-//    val denySat = onDenyMode interpretAll syntaxTree
+    val denySat = onDenyMode interpretAll syntaxTree
 
+    /*만약 최종결과가 $TRUE$ 면 볼 것도 없이 모든 경우에서 SAT 하다는 뜻*/
+    /*만약 최종결과가 $FALSE$면 볼 것도 없이 모든 경우에서 UnSAT 하단 뜻*/
+    /* 어쨌든, NA 때문에 False-Positive 한 경우는 존재할 수 있음 */
     println("OnPermit SAT: " + permitSat)
-//    println("OnDeny SAT: " + denySat)
+    println("OnDeny SAT: " + denySat)
 
 //
 //    //CNFConverter Test

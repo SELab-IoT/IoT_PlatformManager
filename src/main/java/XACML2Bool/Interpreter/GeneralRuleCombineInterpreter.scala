@@ -68,7 +68,7 @@ abstract class GeneralRuleCombineInterpreter extends ICombineInterpreter[RTree] 
     //Case 3. Mixed ==> !(iFR1 | ... | iFRn)
 
     //Case 1
-    if(rules exists isForwardRule) FALSE
+    if(rules exists isForwardRule) TRUE
     //Case 2, 3
     else {
       val iFRs = rules.map(rule => interpretRTree(rule.target, rule.condition, True))
