@@ -1,6 +1,6 @@
-package XACML2Bool.Interpreter
+package ConflictDetector.Converter.Interpreter
 
-import XACML2Bool.SyntaxTree._
+import ConflictDetector.Converter.SyntaxTree._
 
 trait ICombineInterpreter[T <: TTree] {
 

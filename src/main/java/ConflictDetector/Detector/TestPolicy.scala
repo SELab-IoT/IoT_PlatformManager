@@ -1,11 +1,8 @@
-package XACML2Bool
+package ConflictDetector.Detector
+/* 추후 삭제 예정 */
+import scala.xml.Elem
 
-import scala.xml._
-import Interpreter._
-import XACML2Bool.Parser.XACMLParser
-
-class Main {
-
+object TestPolicy {
   var policy: Elem = <PolicySet xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" PolicySetId="ChildrenPolicy"
                                 PolicyCombiningAlgId="urn:oasis:names:tc:xacml:3.0:policy-combining-algorithm:deny-overrides" Version="1.0">
     <Target>
@@ -187,62 +184,4 @@ class Main {
     </Policy>
 
   </PolicySet>
-
-
-  def printX(): Unit = {
-//
-//    var p = policy.toString()
-//    var q = scala.xml.XML.loadString(p);
-//    // q = scala.xml.XML.load(url:URL) // URL로 파일에 접근하는 것도 가능한 듯
-//
-//    // \는 직계 자손중에서 찾고
-//    // \\는 직계 아닌것도 다 찾음, 한개면 Elem, 여러개면 NodeSeq
-//    // https://medium.com/@harittweets/working-with-xml-in-scala-bd6271a1e178
-
-    //Parser Test
-    val syntaxTree = XACMLParser.parseAll(policy)
-    println("SyntaxTree: " + syntaxTree)
-
-    //Interpreter Test
-
-    def interpretVia(mode:Mode) =
-      if(mode is "Permit") PermitInterpreter
-      else if(mode is "Deny") DenyInterpreter
-      else throw new Exception("Permit/Deny Only")
-
-    val onPermitMode:Interpreter = interpretVia(Permit)
-    val onDenyMode:Interpreter = interpretVia(Deny)
-
-    val permitSat = onPermitMode interpretAll syntaxTree
-    val denySat = onDenyMode interpretAll syntaxTree
-
-    /*만약 최종결과가 $TRUE$ 면 볼 것도 없이 모든 경우에서 SAT 하다는 뜻*/
-    /*만약 최종결과가 $FALSE$면 볼 것도 없이 모든 경우에서 UnSAT 하단 뜻*/
-    /* 어쨌든, NA 때문에 False-Positive 한 경우는 존재할 수 있음 */
-    println("OnPermit SAT: " + permitSat)
-    println("OnDeny SAT: " + denySat)
-
-//
-//    //CNFConverter Test
-//    val cnf = CNFConverter.convertSAT2CNF(sat)
-//    println("CNF: " + cnf)
-
-  }
-
-  def process(xacml:String): Unit = {
-
-    def readPolicy(filename:String):Elem = this policy
-
-    def writeFile(filename:String, content:String) = 1
-
-    val policy = readPolicy(xacml)
-
-    val syntaxTree = XACMLParser.parseAll(policy)
-//    val sat = Interpreter.interpretAll(syntaxTree)
-//    val cnf = CNFConverter.convertSAT2CNF(sat)
-
-//    writeFile(xacml+".cnf", cnf)
-
-  }
-
 }

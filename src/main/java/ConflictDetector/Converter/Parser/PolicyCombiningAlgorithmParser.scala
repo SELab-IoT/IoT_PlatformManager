@@ -1,6 +1,6 @@
-package XACML2Bool.Parser
+package ConflictDetector.Converter.Parser
 
-import XACML2Bool.SyntaxTree.PTree
+import ConflictDetector.Converter.SyntaxTree.PTree
 
 object PolicyCombiningAlgorithmParser extends ICombiningAlgorithmParser[PTree] {
   val AlgIdAttribute = "PolicyCombiningAlgId"

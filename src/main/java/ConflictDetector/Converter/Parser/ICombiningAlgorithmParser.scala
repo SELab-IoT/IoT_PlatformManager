@@ -1,7 +1,7 @@
-package XACML2Bool.Parser
+package ConflictDetector.Converter.Parser
 
 import XACMLParser.ParseException
-import XACML2Bool.SyntaxTree._
+import ConflictDetector.Converter.SyntaxTree._
 
 trait ICombiningAlgorithmParser[T <: TTree]{
 

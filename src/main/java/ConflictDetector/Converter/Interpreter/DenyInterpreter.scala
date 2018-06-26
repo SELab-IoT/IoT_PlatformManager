@@ -1,7 +1,7 @@
-package XACML2Bool.Interpreter
+package ConflictDetector.Converter.Interpreter
 
-import XACML2Bool.Interpreter.Builder._
-import XACML2Bool.SyntaxTree._
+import ConflictDetector.Converter.Interpreter.Builder._
+import ConflictDetector.Converter.SyntaxTree._
 
 object DenyInterpreter extends Interpreter{
 

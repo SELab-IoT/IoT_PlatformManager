@@ -1,6 +1,6 @@
-package XACML2Bool.Parser
+package ConflictDetector.Converter.Parser
 
-import XACML2Bool.SyntaxTree.RTree
+import ConflictDetector.Converter.SyntaxTree.RTree
 
 object RuleCombiningAlgorithmParser extends ICombiningAlgorithmParser[RTree] {
   val AlgIdAttribute = "RuleCombiningAlgId"

@@ -1,8 +1,5 @@
-package XACML2Bool
+package ConflictDetector.Converter
 
-import XACML2Bool.Interpreter.Mode
-
-/** Boolean Expression의 문법 표현 후 sat4j에 알맞는 형태로 변환 **/
 /***********************************************************************************************
 // Boolean Operator Tree : CNF든 Boolean 식이든 나타내기 위한 최상위 연결 트리
 BOTree ::= Conjunction(BOTree, BOTree) | Disjunction(BOTree, BOTree) | Negation(BOTree) | TTree
