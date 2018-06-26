@@ -1,7 +1,7 @@
-package XACML2Bool.Interpreter
+package ConflictDetector.Converter.Interpreter
 
-import XACML2Bool.Interpreter.Builder._
-import XACML2Bool.SyntaxTree.PTree
+import ConflictDetector.Converter.Interpreter.Builder._
+import ConflictDetector.Converter.SyntaxTree.PTree
 
 abstract class GeneralPolicyCombineInterpreter extends ICombineInterpreter[PTree] with IPTreeInterpreter{
 

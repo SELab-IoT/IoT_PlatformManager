@@ -1,7 +1,7 @@
-package XACML2Bool.Interpreter
+package ConflictDetector.Converter.Interpreter
 
-import XACML2Bool.Interpreter.Builder._
-import XACML2Bool.SyntaxTree.RTree
+import ConflictDetector.Converter.Interpreter.Builder._
+import ConflictDetector.Converter.SyntaxTree.RTree
 
 abstract class GeneralRuleCombineInterpreter extends ICombineInterpreter[RTree] with IRTreeInterpreter {
 
@@ -45,7 +45,7 @@ abstract class GeneralRuleCombineInterpreter extends ICombineInterpreter[RTree] 
 
   // Permit = T 일 때는 Deny unless Permit
   // Deny = T 일 때는 Permit unless Deny
-  def interpretReverseUnlessForward(rules: RTree*):String = {
+  def interpretReverseUnlessForward(rules: RTree*):String =
     //Case 1. Only Forward Mode ==> Disjunction All
     //Case 2. Only Reverse Mode ==> False
     //Case 3. Mixed ==> Disjunction All Forward Rules
@@ -58,11 +58,11 @@ abstract class GeneralRuleCombineInterpreter extends ICombineInterpreter[RTree] 
       val rs = forwardRules.map(rule => interpretRTree(rule.target, rule.condition, rule.effect))
       dis(rs:_*)
     }
-  }
+
 
   // Permit = T 일 때는 Permit unless Deny
   // Deny = T 일 때는 Deny unless Permit
-  def interpretForwardUnlessReverse(rules: RTree*):String = {
+  def interpretForwardUnlessReverse(rules: RTree*):String =
     //Case 1. Only Forward Mode ==> True
     //Case 2. Only Reverse Mode ==> !(iFR1 | ... | iFRn)
     //Case 3. Mixed ==> !(iFR1 | ... | iFRn)
@@ -74,7 +74,5 @@ abstract class GeneralRuleCombineInterpreter extends ICombineInterpreter[RTree] 
       val iFRs = rules.map(rule => interpretRTree(rule.target, rule.condition, True))
       neg(dis(iFRs:_*))
     }
-
-  }
 
 }

@@ -1,4 +1,4 @@
-package XACML2Bool.Interpreter
+package ConflictDetector.Converter.Interpreter
 
 sealed trait Mode{
   def is(mode:String):Boolean

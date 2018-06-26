@@ -1,6 +1,6 @@
-package XACML2Bool.Interpreter
+package ConflictDetector.Converter.Interpreter
 
-import XACML2Bool.SyntaxTree._
+import ConflictDetector.Converter.SyntaxTree._
 import Builder._
 
 // SyntaxTree to SAT String
@@ -11,13 +11,17 @@ abstract class Interpreter extends IRTreeInterpreter{
 
   final case class InterpretException(private val message: String="", private val cause: Throwable = None.orNull) extends Exception(message, cause)
 
-  def interpretAll(syntaxTree: SyntaxTree):String =
-    syntaxTree match {
+  def interpretAll(syntaxTree: SyntaxTree):(String, Map[String, Long]) = {
+    terms = Map()
+    val result = syntaxTree match {
       case policySet@PSTree(_, _) => interpretTTree(policySet)
       case policy@PTree(_, _) => interpretTTree(policy)
       case _ => throw InterpretException("Only PSTree and PTree can be root node")
     }
-
+    (result, terms)
+//    "p sat "+terms.values.max+"\n"+result
+//    terms.toString
+  }
 
   def interpretTTree(tTree: TTree):String =
     tTree match {

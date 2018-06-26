@@ -1,4 +1,4 @@
-package XACML2Bool.Parser
+package ConflictDetector.Converter.Parser
 
 class CombiningAlgorithm(val algorithmId:String) extends AnyVal
 object CombiningAlgorithm{

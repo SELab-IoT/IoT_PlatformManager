@@ -1,4 +1,4 @@
-package XACML2Bool.Interpreter
+package ConflictDetector.Converter.Interpreter
 
 object Builder {
   def con(terms:String*):String =
@@ -24,17 +24,17 @@ object Builder {
   def buildWith(op:String, terms:Seq[String]):String =
     if(terms.length == 0) TRUE
     else if(terms.length == 1) terms.head
-    else op + joinAll(terms:_*)
+    else joinAll(op, terms:_*)
 
 
   def wrap(n:String):String = "(" + n + ")"
   // Constraint. n.length must be >= 2
-  def joinAll(n: String*):String =
-    wrap(n reduce (_+" "+_))
+  def joinAll(op:String, n: String*):String =
+    wrap(n reduce (_+" "+op+" "+_))
 
-  def AND = "*"
-  def OR = "+"
-  def NOT = "-"
+  def AND = "&"
+  def OR = "|"
+  def NOT = "!"
 
   def TRUE = "$TRUE$"
   def FALSE = "$FALSE$"

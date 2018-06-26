@@ -1,7 +1,7 @@
-package XACML2Bool.Parser
+package ConflictDetector.Converter.Parser
 
-import XACML2Bool.Interpreter.Mode
-import XACML2Bool.SyntaxTree._
+import ConflictDetector.Converter.Interpreter.Mode
+import ConflictDetector.Converter.SyntaxTree._
 
 import scala.xml._
 
