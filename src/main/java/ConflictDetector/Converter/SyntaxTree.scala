@@ -1,35 +1,37 @@
 package ConflictDetector.Converter
 
-/***********************************************************************************************
-// Boolean Operator Tree : CNF든 Boolean 식이든 나타내기 위한 최상위 연결 트리
-BOTree ::= Conjunction(BOTree, BOTree) | Disjunction(BOTree, BOTree) | Negation(BOTree) | TTree
-
-// TTree : 위 BOTree에서 하나의 항을 나타낸다
-TTree ::= PSTree | PTree
-
-// Policy Set Tree : PolicySet의 Target과 하위 Policy들을 연결하는 트리
-PSTree ::= BOTree[PTree] | Conjunction(Target, BOTree[PTree])
-
-// Policy Tree : 단일 Policy의 Target과 하위 Rule들을 연결하는 트리
-PTree ::= BOTree[RTree] | Conjunction(Target, BOTree[RTree])
-
-// Rule Tree : 단일 Rule의 Target과 Condition을 연결하는 트리
-/* 마지막 항은 필요한가? 일단 Effect=Deny를 상정하고 서술하였다. */
-RTree ::= CTree | Conjunction(Target, CTree) | Negation(Conjunction(Target, CTree))
-
-// Target : 복수의 Match를 연결하는 리스트
-Target ::= CTree /*Subject, Resource, Action의 묶음*/
-
-// Condition Tree : 각 Rule의 조건식을 나타내는 트리, 조건식이 없는 경우 바로 True
-CTree ::= Any | BFTree | BETree
-
-// Boolean Function Tree : BOTree와 유사하나 Match와 Condition내에서만 작동한다.
-BFTree ::= And(CTree, CTree) | Or(CTree, CTree) | Not(CTree)
-
-// Boolean Expression Tree : Boolean을 반환하는 비교식(Greater Than, Less Than, Equal, ...)을 표현하기 위한 트리
-/* 각 비교식은 0차에서는 직접 평가할 필요 없이 a, b, c 등으로 치환 가능하다. */
-BETree ::= GreaterThan(Number, Number) | LessThan(Number, Number) | Equal(String, String) | ...
-  ***********************************************************************************************/
+import ConflictDetector.Converter.Interpreter.Mode
+//
+///** *********************************************************************************************
+//*// Boolean Operator Tree : CNF든 Boolean 식이든 나타내기 위한 최상위 연결 트리
+//*BOTree ::= Conjunction(BOTree, BOTree) | Disjunction(BOTree, BOTree) | Negation(BOTree) | TTree
+// **
+// // TTree : 위 BOTree에서 하나의 항을 나타낸다
+//*TTree ::= PSTree | PTree
+// **
+// // Policy Set Tree : PolicySet의 Target과 하위 Policy들을 연결하는 트리
+//*PSTree ::= BOTree[PTree] | Conjunction(Target, BOTree[PTree])
+// **
+// // Policy Tree : 단일 Policy의 Target과 하위 Rule들을 연결하는 트리
+//*PTree ::= BOTree[RTree] | Conjunction(Target, BOTree[RTree])
+// **
+// // Rule Tree : 단일 Rule의 Target과 Condition을 연결하는 트리
+//*/* 마지막 항은 필요한가? 일단 Effect=Deny를 상정하고 서술하였다. */
+//*RTree ::= CTree | Conjunction(Target, CTree) | Negation(Conjunction(Target, CTree))
+// **
+// // Target : 복수의 Match를 연결하는 리스트
+//*Target ::= CTree /*Subject, Resource, Action의 묶음*/
+// **
+// // Condition Tree : 각 Rule의 조건식을 나타내는 트리, 조건식이 없는 경우 바로 True
+//*CTree ::= Any | BFTree | BETree
+// **
+// // Boolean Function Tree : BOTree와 유사하나 Match와 Condition내에서만 작동한다.
+//*BFTree ::= And(CTree, CTree) | Or(CTree, CTree) | Not(CTree)
+// **
+// // Boolean Expression Tree : Boolean을 반환하는 비교식(Greater Than, Less Than, Equal, ...)을 표현하기 위한 트리
+//*/* 각 비교식은 0차에서는 직접 평가할 필요 없이 a, b, c 등으로 치환 가능하다. */
+//*BETree ::= GreaterThan(Number, Number) | LessThan(Number, Number) | Equal(String, String) | ...
+//  ***********************************************************************************************/
 
 object SyntaxTree {
 
