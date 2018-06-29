@@ -3,6 +3,8 @@ package ConflictDetector.Detector
 import java.io.{File, PrintWriter}
 import java.nio.file.{Files, Paths}
 
+import ConflictDetector.Converter.Interpreter.TermSet
+
 import scala.sys.process._
 
 object Solver {
@@ -31,15 +33,14 @@ object Solver {
     val lines = solver.toString.split("\n")
     val satisfiability = if(lines.head.contains(SAT)) SomeSAT else UnSAT
     val (ts, fs) = parseSatisfiableAssignment(lines.tail)
-
-    SolverResult(satisfiability, ts, fs)
-
+//    SolverResult(satisfiability, (ts ::: fs).sortWith((n1, n2) => Math.abs(n1) < Math.abs(n2)))
+    SolverResult(satisfiability, (ts ::: fs).sorted)
   }
 
-  def parseSatisfiableAssignment(satAss: Array[String]):(List[String], List[String])={
+  def parseSatisfiableAssignment(satAss: Array[String]):(List[Long], List[Long])={
     val ass = satAss.map(_.split(" = ").map(_.trim))
-    val ts = ass.filter(_.last equals "1").map(_.head).toList
-    val fs = ass.filter(_.last equals "0").map(_.head).toList
+    val ts = ass.filter(_.last equals "1").map(_.head.toLong).toList  // true : positive
+    val fs = ass.filter(_.last equals "0").map(-_.head.toLong).toList // false: negative
     (ts, fs)
   }
 }

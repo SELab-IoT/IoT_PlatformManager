@@ -10,7 +10,7 @@ TODO: 어쩌면 interpretPSTree는 다시 Interpreter로 옮겨갈 수도 있음
 (ps = PolicyInterpreter.interpretCombiningAlgorithm)
 만약 PermitPolicyInterpreter와 DenyPolicyInterpreter가 완전 같다면 옮길것임.
 */
-object PermitInterpreter extends Interpreter{
+class PermitInterpreter extends Interpreter{
 
   override def interpretPTree(target: Target, rules: Combine[RTree]): String =
     PermitPolicyInterpreter.interpretPTree(target, rules)

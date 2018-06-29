@@ -6,19 +6,15 @@ import Builder._
 // SyntaxTree to SAT String
 abstract class Interpreter extends IRTreeInterpreter{
 
-  var uuid:Long = 0
-  var terms:Map[String, Long] = Map()
-
   final case class InterpretException(private val message: String="", private val cause: Throwable = None.orNull) extends Exception(message, cause)
 
-  def interpretAll(syntaxTree: SyntaxTree):(String, Map[String, Long]) = {
-    terms = Map()
+  def interpretAll(syntaxTree: SyntaxTree):String = {
     val result = syntaxTree match {
       case policySet@PSTree(_, _) => interpretTTree(policySet)
       case policy@PTree(_, _) => interpretTTree(policy)
       case _ => throw InterpretException("Only PSTree and PTree can be root node")
     }
-    (result, terms)
+    result
 //    "p sat "+terms.values.max+"\n"+result
 //    terms.toString
   }
@@ -63,12 +59,9 @@ abstract class Interpreter extends IRTreeInterpreter{
     }
 
   def interpretBETree(beTree: BETree):String = {
-    val term = terms.getOrElse(beTree.toString, uuid+1)
-    if(uuid+1 == term) {
-      terms += (beTree.toString -> term)
-      uuid = term
-    }
-    term.toString
+    val term = beTree.toString
+    TermSet.appendIfNotExist(term)
+    TermSet.num(term).toString
   }
 
   //이거 실제로 필요한지 나중에 보고 필요없으면 BOTree 째로 지울 듯

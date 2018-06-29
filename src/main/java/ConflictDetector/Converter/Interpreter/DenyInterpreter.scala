@@ -3,7 +3,7 @@ package ConflictDetector.Converter.Interpreter
 import ConflictDetector.Converter.Interpreter.Builder._
 import ConflictDetector.Converter.SyntaxTree._
 
-object DenyInterpreter extends Interpreter{
+class DenyInterpreter extends Interpreter{
 
   override def interpretPTree(target: Target, rules: Combine[RTree]): String =
     DenyPolicyInterpreter.interpretPTree(target, rules)
