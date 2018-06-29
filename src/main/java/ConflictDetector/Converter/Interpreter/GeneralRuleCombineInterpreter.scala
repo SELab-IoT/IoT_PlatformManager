@@ -3,6 +3,7 @@ package ConflictDetector.Converter.Interpreter
 import ConflictDetector.Converter.Interpreter.Builder._
 import ConflictDetector.Converter.SyntaxTree.RTree
 
+//TODO: GeneralRuleCombineIntepreter를 계속 추가적으로 작성해야 함
 abstract class GeneralRuleCombineInterpreter extends ICombineInterpreter[RTree] with IRTreeInterpreter {
 
   // Forward Mode 는 True로 보는 결과(Permit/Deny)를 의미

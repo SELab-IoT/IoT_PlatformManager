@@ -1,7 +1,5 @@
 package ConflictDetector.Detector
 
-import ConflictDetector.Converter.Interpreter.TermSet.Dictionary
-
 import scala.xml.Elem
 import ConflictDetector.Converter.Interpreter._
 import ConflictDetector.Converter.Parser._
@@ -19,12 +17,12 @@ object Detector {
       case "modifiedPolicy" => TestPolicy.modifiedPolicy
     }
   }
-  def convertPolicy(value: Elem) = {
+  def parsePolicy(value: Elem) = {
     val policies = XACMLParser.parseAll(value)
     //      2.1. PermitInterpreter에 넣고 돌린다. -> Boolean Form이 나온다.
-    val permitSAT = new PermitInterpreter().interpretAll(policies)
+    val permitSAT = PermitInterpreter.interpretAll(policies)
     //      2.2. DenyInterpreter에 넣고 돌린다. -> Boolean Form이 나온다.
-    val denySAT = new DenyInterpreter().interpretAll(policies)
+    val denySAT = DenyInterpreter.interpretAll(policies)
     (permitSAT, denySAT)
   }
 
@@ -52,8 +50,8 @@ object Detector {
 
     }
 
-  def parsePolicy(policyPath:String) =
-    convertPolicy(loadPolicy(policyPath))
+  def convertPolicy(policyPath:String) =
+    parsePolicy(loadPolicy(policyPath))
 
   def findAllSATCases(sat:String):SatisfiableCaseSet= {
     val satisfiability = getSatisfiability(sat)
@@ -101,8 +99,8 @@ object Detector {
 
     //정책 파일 로드 후 파싱, Term Dictionary도 작성한다.
     TermSet.clear
-    val (oldPermitSAT, oldDenySAT) = parsePolicy(originalPolicy)
-    val (newPermitSAT, newDenySAT) = parsePolicy(modifiedPolicy)
+    val (oldPermitSAT, oldDenySAT) = convertPolicy(originalPolicy)
+    val (newPermitSAT, newDenySAT) = convertPolicy(modifiedPolicy)
 
     //모든 Satisfiable Cases를 찾아낸다. NA는 최대한 제거한다.
     // * parsePolicy가 side-effect free 하지 않아 아래와 묶을 수 없었다.
