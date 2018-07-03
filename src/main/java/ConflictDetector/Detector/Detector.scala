@@ -96,6 +96,7 @@ object Detector {
 //    C. OldPolicy_permit, OldPolicy_deny, NewPolicy_permit, NewPolicy_deny에 대한 집합연산을 수행하여 ... ?
 
     //정책 파일 로드 후 파싱, Term Dictionary도 작성한다.
+    //이 부분 추후 시간 남거나 필요하게 되면 별도의 API로 분리(매번 새로 파싱하거나 새로 딕션어리 만들지 않게끔...).
     TermDictionary.clear
     val (oldPermitSAT, oldDenySAT) = convertPolicy(originalPolicyPath)
     val (newPermitSAT, newDenySAT) = convertPolicy(modifiedPolicyPath)
@@ -115,28 +116,10 @@ object Detector {
 
     val dictionary = TermDictionary.toMap
 
-    //Debug
-    if(debug) {
-      println("===================================REPORT=======================================")
-      println("Dictionary: " + dictionary)
-      println("Op : " + oldPermit)
-      println("Np : " + newPermit)
-      println("Od : " + oldDeny)
-      println("Nd : " + newDeny)
-      println("--------------------------------------------------------------------------------")
-      println("Conflict 1. 수정 전에 Permit이 나오는 케이스였으나 수정 후 Permit이 아니게 된 경우")
-      println("Op - Np : " + permitButNotPermit)
-      println("Conflict 2. 수정 전에 Deny가 나오는 케이스였으나 수정 후 Deny가 아니게 된 경우")
-      println("Od - Nd : " + denyButNotDeny)
-      println("Conflict 3. 수정 전에 Permit이 나오지 않는 케이스였으나 수정 후 Permit이 나오게 된 경우")
-      println("Np - Op : " + notPermitButPermit)
-      println("Conflict 4. 수정 전에 Deny가 나오지 않는 케이스였으나 수정 후 Deny가 나오게 된 경우")
-      println("Nd - Od : " + notDenyButDeny)
-      println("--------------------------------------------------------------------------------")
-      println("All Conflict Cases: ")
-      println(allConflictCases)
-      println("================================================================================")
-    }
+    //Debug - 그냥 디버그용이라 long parameter 무시
+    if(debug)
+      printReport(oldPermit, oldDeny, newPermit, newDeny, permitButNotPermit, denyButNotDeny, notPermitButPermit, notDenyButDeny, allConflictCases, dictionary)
+
 
     val scalaRes = (allConflictCases, dictionary)
 
@@ -145,4 +128,26 @@ object Detector {
 
   }
 
+  //Debug - 그냥 디버그용이라 long parameter 무시
+  private def printReport(oldPermit: Set[List[Long]], oldDeny: Set[List[Long]], newPermit: Set[List[Long]], newDeny: Set[List[Long]], permitButNotPermit: Set[List[Long]], denyButNotDeny: Set[List[Long]], notPermitButPermit: Set[List[Long]], notDenyButDeny: Set[List[Long]], allConflictCases: Set[List[Long]], dictionary: Map[Long, String]) = {
+    println("===================================REPORT=======================================")
+    println("Dictionary: " + dictionary)
+    println("Op : " + oldPermit)
+    println("Np : " + newPermit)
+    println("Od : " + oldDeny)
+    println("Nd : " + newDeny)
+    println("--------------------------------------------------------------------------------")
+    println("Conflict 1. 수정 전에 Permit이 나오는 케이스였으나 수정 후 Permit이 아니게 된 경우")
+    println("Op - Np : " + permitButNotPermit)
+    println("Conflict 2. 수정 전에 Deny가 나오는 케이스였으나 수정 후 Deny가 아니게 된 경우")
+    println("Od - Nd : " + denyButNotDeny)
+    println("Conflict 3. 수정 전에 Permit이 나오지 않는 케이스였으나 수정 후 Permit이 나오게 된 경우")
+    println("Np - Op : " + notPermitButPermit)
+    println("Conflict 4. 수정 전에 Deny가 나오지 않는 케이스였으나 수정 후 Deny가 나오게 된 경우")
+    println("Nd - Od : " + notDenyButDeny)
+    println("--------------------------------------------------------------------------------")
+    println("All Conflict Cases: ")
+    println(allConflictCases)
+    println("================================================================================")
+  }
 }
