@@ -85,16 +85,18 @@ object XACMLParser{
     (anyOf \ "AllOf").map(parseAllOf).reduce(Or)
 
   /** Parse AllOf Tag **/
-  def parseAllOf(allOf: Node): CTree =
-    (allOf \ "Match").map(parseMatch).reduce(And)
+  def parseAllOf(allOf: Node): CTree = {
+    val matches = (allOf \ "Match") ++ (allOf \ "ActionMatch")
+    matches.map(parseMatch).reduce(And)
+  }
 
   /** Parse Match **/
   def parseMatch(mat: Node): CTree = {
     val matchId = (mat \ "@MatchId").toString
     val param1 = (mat \ "AttributeValue").text
     val param2 = (mat \ "AttributeDesignator" \ "@AttributeId").toString
-    // TODO: 1차에서 MatchId의 종류에 따라 핸들링 할 것임.
-    AnyBinaryExp(matchId, param1, param2)
+    // TODO: 차후 MatchId의 종류에 따라 핸들링 하거나 혹은 그냥 이대로 사용함.
+    AnyBinaryExp(matchId, param1, param2).removeWhiteSpace
   }
 
   /** Parse Condition **/
@@ -123,10 +125,10 @@ object XACMLParser{
             Or(left, right)
         }
       case None =>
-        // TODO: 1차에서 FunctionId의 종류에 따라 핸들링 할 것임.
+        // TODO: 차후 FunctionId의 종류에 따라 핸들링 하거나 혹은 그냥 이대로 사용함.
         val value = (apply \ "AttributeValue").text
         val designator = (apply \\ "AttributeDesignator" \ "@Category")+"::"+(apply \\ "AttributeDesignator" \ "@AttributeId")
-        AnyBinaryExp(functionId, designator, value)
+        AnyBinaryExp(functionId, designator, value).removeWhiteSpace
     }
   }
 

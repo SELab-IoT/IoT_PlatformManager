@@ -10,10 +10,10 @@ object Detector {
 
   //TODO: 추후 실제 파일 로드하게끔 수정 예정
   private def loadPolicy(path:String) = {
-//    scala.xml.XML.load(path)
+    scala.xml.XML.load(path)
     //아래는 추후 삭제.
-    if(path.equals("originalPolicy")) TestPolicy.originalPolicy
-    else TestPolicy.modifiedPolicy
+//    if(path.equals("originalPolicy")) TestPolicy.originalPolicy
+//    else TestPolicy.modifiedPolicy
   }
   private def parsePolicy(value: Elem) = {
     val policies = XACMLParser.parseAll(value)
@@ -55,20 +55,24 @@ object Detector {
     // 3. 각 BooleanForm을 UnSAT이 나올 때 까지 Solver에 넣고 돌린다.
     val solverResults = runSolverUntilGetUnSAT(sat, satisfiability, Set.empty)
 
-    // 4. 집합 연산을 위한 Don't Care 텀 추가
-    val results = solverResults.flatMap(sr => {
-      def duplicate(ass:List[Long], i:Long):List[List[Long]] = {
-        if(i==0) List(ass)
-        else if(!ass.exists(Math.abs(_)==i)){
-          val ts = duplicate(i::ass, i-1)
-          val fs = duplicate(-i::ass, i-1)
-          ts ::: fs
+    // 4. 집합 연산을 위한 Don't Care 텀 추가.
+    def addDontCareTerms(solverResults: Set[SolverResult]) = {
+      solverResults.flatMap(sr => {
+        def duplicate(ass: List[Long], i: Long): List[List[Long]] = {
+          if (i == 0) List(ass)
+          else if (!ass.exists(Math.abs(_) == i)) {
+            val ts = duplicate(i :: ass, i - 1)
+            val fs = duplicate(-i :: ass, i - 1)
+            ts ::: fs
+          }
+          else duplicate(ass, i - 1)
         }
-        else duplicate(ass, i-1)
-      }
-      duplicate(sr.assigns, TermDictionary.lastIndex).map(SolverResult(SomeSAT, _))
-    })
-    results.map(sr => SolverResult(sr.satisfiable, sr.assigns.sorted))
+        duplicate(sr.assigns, TermDictionary.lastIndex).map(SolverResult(SomeSAT, _))
+      })
+    }
+
+    val res = addDontCareTerms(solverResults)
+    res.map(sr => SolverResult(sr.satisfiable, sr.assigns.sorted))
   }
 
   private def removeNA(permitSAT:SatisfiableCaseSet, denySAT: SatisfiableCaseSet):(SatisfiableCaseSet, SatisfiableCaseSet) =
@@ -82,7 +86,7 @@ object Detector {
     (permit.map(_.assigns), deny.map(_.assigns))
   }
 
-  def processConflictDetect(originalPolicyPath:String, modifiedPolicyPath:String) = {
+  def processConflictDetect(originalPolicyPath:String, modifiedPolicyPath:String, debug:Boolean = false) = {
 //    A. 기존 정책 파일에 대해 2~5를 수행한다.
 //      OldPolicy_permit: 기존 정책에서 Permit이 나오는 모든 케이스
 //      OldPolicy_deny: 기존 정책에서 Deny가 나오는 모든 케이스
@@ -112,23 +116,27 @@ object Detector {
     val dictionary = TermDictionary.toMap
 
     //Debug
-    /*
-    println("Dictionary: "+dictionary)
-    println("Op : "+oldPermit)
-    println("Np : "+newPermit)
-    println("Od : "+oldDeny)
-    println("Nd : "+newDeny)
-    println("Conflict 1. 수정 전에 Permit이 나오는 케이스였으나 수정 후 Permit이 아니게 된 경우")
-    println("Op - Np : "+permitButNotPermit)
-    println("Conflict 2. 수정 전에 Deny가 나오는 케이스였으나 수정 후 Deny가 아니게 된 경우")
-    println("Od - Nd : "+denyButNotDeny)
-    println("Conflict 3. 수정 전에 Permit이 나오지 않는 케이스였으나 수정 후 Permit이 나오게 된 경우")
-    println("Np - Op : "+notPermitButPermit)
-    println("Conflict 4. 수정 전에 Deny가 나오지 않는 케이스였으나 수정 후 Deny가 나오게 된 경우")
-    println("Nd - Od : "+notDenyButDeny)
-    println("All Conflict Cases: ")
-    println(allConflictCases)
-    */
+    if(debug) {
+      println("===================================REPORT=======================================")
+      println("Dictionary: " + dictionary)
+      println("Op : " + oldPermit)
+      println("Np : " + newPermit)
+      println("Od : " + oldDeny)
+      println("Nd : " + newDeny)
+      println("--------------------------------------------------------------------------------")
+      println("Conflict 1. 수정 전에 Permit이 나오는 케이스였으나 수정 후 Permit이 아니게 된 경우")
+      println("Op - Np : " + permitButNotPermit)
+      println("Conflict 2. 수정 전에 Deny가 나오는 케이스였으나 수정 후 Deny가 아니게 된 경우")
+      println("Od - Nd : " + denyButNotDeny)
+      println("Conflict 3. 수정 전에 Permit이 나오지 않는 케이스였으나 수정 후 Permit이 나오게 된 경우")
+      println("Np - Op : " + notPermitButPermit)
+      println("Conflict 4. 수정 전에 Deny가 나오지 않는 케이스였으나 수정 후 Deny가 나오게 된 경우")
+      println("Nd - Od : " + notDenyButDeny)
+      println("--------------------------------------------------------------------------------")
+      println("All Conflict Cases: ")
+      println(allConflictCases)
+      println("================================================================================")
+    }
 
     val scalaRes = (allConflictCases, dictionary)
 
