@@ -68,7 +68,10 @@ object SyntaxTree {
   sealed trait BETree extends CTree
   case class Equal[A, B](a: A, b: B) extends BETree
   case class GreaterThan[A, B](a: A, b: B) extends BETree
-  case class AnyBinaryExp[A, B](op: String, a: A, b: B) extends BETree
+  case class AnyBinaryExp[A, B](op: String, a: A, b: B) extends BETree {
+    def removeWhiteSpace = AnyBinaryExp(op.replaceAll("\\s+",""), a.toString.replaceAll("\\s+",""), b.toString.replaceAll("\\s+",""))
+  }
+
   //  And so on... in BETree
 
 }
