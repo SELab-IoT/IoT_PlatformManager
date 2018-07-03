@@ -60,8 +60,8 @@ abstract class Interpreter extends IRTreeInterpreter{
 
   def interpretBETree(beTree: BETree):String = {
     val term = beTree.toString
-    TermSet.appendIfNotExist(term)
-    TermSet.num(term).toString
+    TermDictionary.appendIfNotExist(term)
+    TermDictionary.num(term).toString
   }
 
   //이거 실제로 필요한지 나중에 보고 필요없으면 BOTree 째로 지울 듯
