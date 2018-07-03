@@ -1,6 +1,6 @@
 package ConflictDetector.Detector
 
-sealed trait Satisfiability
-case object AllSAT extends Satisfiability
-case object UnSAT extends Satisfiability
-case object SomeSAT extends Satisfiability
+protected sealed trait Satisfiability
+protected case object AllSAT extends Satisfiability
+protected case object UnSAT extends Satisfiability
+protected case object SomeSAT extends Satisfiability

@@ -3,11 +3,9 @@ package ConflictDetector.Detector
 import java.io.{File, PrintWriter}
 import java.nio.file.{Files, Paths}
 
-import ConflictDetector.Converter.Interpreter.TermSet
-
 import scala.sys.process._
 
-object Solver {
+protected object Solver {
 
   def SAT = "% SATISFIABLE"
   def UNSAT = "% UNSATISFIABLE"
