@@ -8,7 +8,7 @@ POST
 
 # 5. PEP Group 조회 /groups/{userID}/{pepID}
 GET
-/groups/frebern/pep1
+/groups/frebern/pep_1
 {
 }
 
@@ -20,7 +20,7 @@ POST
   "pepGroupID" : 2,
   "pepGroupPW" : "0ab9c05e449543077590b6e54da3b7781c43bf40a8bc66bd19d19340cb5936e8",
   "pepGroupName" : "pepGroup1",
-  "pepID" : "pep1"
+  "pepID" : "pep_1"
 }
 
 # 7a2 ~ 9a(세션키 반환받음)
@@ -29,7 +29,7 @@ POST
 {
   "userID" : "frebern",
   "pepGroupID" : 2,
-  "pepID" : "pep1"
+  "pepID" : "pep_1"
 }
 
 # 7b ~ 9b(Ack 혹은 Nak 반환받음) sha3-256("passwd")
