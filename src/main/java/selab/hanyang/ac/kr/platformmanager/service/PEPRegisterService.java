@@ -34,6 +34,7 @@ public class PEPRegisterService {
 
     @Async
     public Future<JsonObject> addPEPtoPEPGroup(JsonObject object) {
+        System.out.println(object);
         String userId = object.get("userID").getAsString();
         JsonElement pepId = object.get("pepID");
         JsonElement pepGroupId = object.get("pepGroupID");
@@ -144,7 +145,7 @@ public class PEPRegisterService {
     }
 
     private void addGroupMember(JsonObject object, User user, long pepGroudID, JsonObject response) {
-        String pepGroupPW = object.get("pepGroupPW").getAsString();
+        String pepGroupPW = object.get("groupPW").getAsString();
         PEPGroup pepGroup = pepGroupRepository.findOne(pepGroudID);
         if (checkPEPGroupPW(pepGroup, pepGroupPW)) {
             GroupMember groupMember = new GroupMember(user, pepGroup);
