@@ -1,21 +1,16 @@
-$(()=>{
-	$("#pep_register").click(()=>{
-		
-		$("#wrap").empty();
-		jQuery.get("requests/pep_register.txt", (data)=>{
-			parseRequests(data);
+﻿$(()=>{
+	
+	function handle(id){
+		$("#"+id).click(()=>{
+			$("#wrap").empty();
+			jQuery.get("requests/"+id+".txt", (data)=>{
+				parseRequests(data);
+			});
 		});
-		
-	});
-
-
-	$("#query").click(()=>{
-		
-		$("#wrap").empty();
-		jQuery.get("requests/query.txt", (data)=>{
-			parseRequests(data);
-		});
-		
+	}
+	
+	$("button").each(function(index){
+		handle(this.id);
 	});
 	
 	function br(){
@@ -31,8 +26,9 @@ $(()=>{
 	}
 	
 	function parseRequests(requests){
+		var url_platformManager = "http://localhost:8080";
+		var url_pep = "http://pepServer:8080";
 		var lines = requests.split(/\r?\n/);
-		var server = "http://localhost:8000";
 		var url = "";
 		var method = "GET";
 		var buflag = false;
@@ -48,9 +44,14 @@ $(()=>{
 				append("Method: "+line);
 				br();
 			}
-			else if(line.startsWith("/")){
-				url = server + line;
-				append("URL: "+server+line);
+			else if(line.startsWith("PM")){ //e.g. PM/longin
+				url = url_platformManager + line.substring(2);
+				append("URL: "+url);
+				br();
+			}
+			else if(line.startsWith("PEP")){ //e.g. PEP/profile
+				url = url_pep + line.substring(3);
+				append("URL: "+url);
 				br();
 			}
 			else if(line.startsWith("{")){
@@ -94,17 +95,18 @@ $(()=>{
 			}
 			
 			function success(data, status, header){
-				append("<b>Status:</b> "+status+"("+header.status+")");
+				append("Status: "+status+"("+header.status+")");
 				br();
-				code("<b>Response:</b> "+JSON.stringify(data, null, 2));
+				code("Contents: "+JSON.stringify(data, null, 2));
 			}
 			
 			function failure(data, status){
-				append("<b>Status:</b> "+status+"("+data.status+")");
+				append("Status: "+status+"("+data.status+")");
 				br();
-				var json = JSON.stringify(JSON.parse(data.responseText), null, 2);
-				console.log(json);
-				code("<b>Response:</b> "+json);
+				console.log(data.responseText);
+				//var json = JSON.stringify(JSON.parse(data.responseText), null, 2);
+				//console.log(json);
+				code("Contents: "+data.responseText);
 			}
 		}
 		

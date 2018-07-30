@@ -1,0 +1,12 @@
+﻿# 2. Device 검색 요청
+GET
+PEP/devices/frebern
+{
+}
+
+# 6. 선택된 Device 리스트 연결요청 - 여기 프로토콜에는 변수명(deviceList) 안정해서 임의로 정함, 그리고 디바이스 리스트명도 추후 수정
+POST
+PEP/devices
+{
+  "deviceList":["airconditioner","speaker"]
+}

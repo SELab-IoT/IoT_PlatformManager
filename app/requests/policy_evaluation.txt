@@ -1,0 +1,9 @@
+﻿# 0. Device 조회 ... Skip (query.txt에 있음)
+
+# 1. Device 사용 요청
+POST
+PEP/devices/airconditioner
+{
+  "action":"setTemp",
+  "params":[26, "strong"]
+}

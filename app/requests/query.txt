@@ -1,5 +1,5 @@
 ﻿# 1. PEP Group, PEP, Device 정보 조회 /pep-group/profile/{userID}
 GET
-/pep-group/profile/frebern
+PM/pep-group/profile/frebern
 {
 }
