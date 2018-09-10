@@ -3,9 +3,12 @@ package selab.hanyang.ac.kr.platformmanager.controller;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import selab.hanyang.ac.kr.platformmanager.database.model.Device;
+import selab.hanyang.ac.kr.platformmanager.database.model.DeviceAction;
 import selab.hanyang.ac.kr.platformmanager.database.model.PEP;
 import selab.hanyang.ac.kr.platformmanager.database.model.PEPGroup;
 import selab.hanyang.ac.kr.platformmanager.database.repository.*;
@@ -31,52 +34,72 @@ public class UtilityController {
 
     // 조회 기능
     @CrossOrigin(origins = "http://localhost")
-    @GetMapping("/pep-group/profile/{userID}")
+    @GetMapping("/pep-group/profile/{userId}")
     public @ResponseBody
-    String getPEPGroups(@PathVariable String userID, HttpServletResponse httpResponse){
+    String getPEPGroups(@PathVariable String userId, HttpServletResponse httpResponse){
 
         JsonArray groups = new JsonArray();
 
         // 1. 해당 유저가 속한 pepGroup들 가져와서
-        List<PEPGroup> grps = pepGrpRepo.findPEPGroupsByUserId(userID);
+        List<PEPGroup> grps = pepGrpRepo.findPEPGroupsByUserId(userId);
+
         grps.forEach(grp->{
 
             // 2. Group 정보 꺼내고
-            long pepGroupID = grp.getPepGroupID();
+            long pepGroupId = grp.getPepGroupId();
             JsonArray pepProfiles = new JsonArray();
 
             // A ~ D : pepProfiles 만들기
             // A. pepGroup에 속하는 pep들 가져와서
-            List<PEP> peps = pepRepo.findByGroupId(pepGroupID);
+            List<PEP> peps = pepRepo.findByGroupId(pepGroupId);
             peps.forEach(pep->{
 
                 // B. 정보 꺼내고
                 String ip = pep.getIp();
-                JsonArray devProfiles = new JsonArray();
+                JsonArray deviceProfiles = new JsonArray();
 
-                // a ~ d : devProfiles 만들기
+                // a ~ d : deviceProfiles 만들기
                 // a. pep에 속하는 device들 가져와서
                 devRepo.findByPep(pep)
-                       .forEach(dev->{
+                        .forEach(device->{
                             // b. 정보 꺼내고
-                            String devId = dev.getId();
-                            String devName = dev.getName();
-                            JsonArray actions = new Gson().toJsonTree(devActRepo.findByDevice(dev)).getAsJsonArray();
+                            String deviceId = device.getId();
+                            String deviceName = device.getName();
+                            JsonArray actions = new JsonArray();
+
+                            // 1 ~ 4 : actions 만들기
+                            // 1. device에 속하는 action들 가져와서
+                            List<DeviceAction> acts = devActRepo.findByDevice(device);
+                            acts.forEach(act -> {
+                                // 2. 정보 꺼내고
+                                String actionId = act.getActionId();
+                                String actionName = act.getActionName();
+                                String params = act.getParams();
+
+                                // 3. action 만들어주고
+                                JsonObject action = new JsonObject();
+                                action.addProperty("actionId", actionId);
+                                action.addProperty("actionName", actionName);
+                                action.addProperty("params", params);
+
+                                // 4. actions에 추가
+                                actions.add(action);
+                            });
 
                             // c. devProfile 만들어주고
                             JsonObject devProfile = new JsonObject();
-                            devProfile.addProperty("deviceID", devId);
-                            devProfile.addProperty("deviceName", devName);
+                            devProfile.addProperty("deviceId", deviceId);
+                            devProfile.addProperty("deviceName", deviceName);
                             devProfile.add("actions", actions);
 
                             // d. JsonArray에 각각 추가
-                            devProfiles.add(devProfile);
-                       });
+                            deviceProfiles.add(devProfile);
+                        });
 
                 // C. pepProfile 만들어주고
                 JsonObject pepProfile = new JsonObject();
                 pepProfile.addProperty("ip", ip);
-                pepProfile.add("deviceProfiles", devProfiles);
+                pepProfile.add("deviceProfiles", deviceProfiles);
 
                 // D. JsonArray에 각각 추가
                 pepProfiles.add(pepProfile);
@@ -85,7 +108,7 @@ public class UtilityController {
 
             // 3. group 만들어주고
             JsonObject group = new JsonObject();
-            group.addProperty("pepGroupID", pepGroupID);
+            group.addProperty("pepGroupId", pepGroupId);
             group.add("pepProfiles",pepProfiles);
 
             // 4. JsonArray에 각각 추가

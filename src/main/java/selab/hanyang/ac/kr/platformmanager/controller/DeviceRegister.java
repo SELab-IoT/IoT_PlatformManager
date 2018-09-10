@@ -31,13 +31,13 @@ public class DeviceRegister {
 
     // Device 등록 기능
     @CrossOrigin(origins = "http://localhost")
-    @PostMapping("devices/{pepID}")
+    @PostMapping("devices/{pepId}")
     public @ResponseBody
-    String updateDevice(@PathVariable String pepID, @RequestBody String request, HttpServletResponse httpResponse){
+    String updateDevice(@PathVariable String pepId, @RequestBody String request, HttpServletResponse httpResponse){
 
         RequestParser parser = new RequestParser(request);
         List<JsonObject> devices = RequestParser.mapToObject(parser.getAsJsonArray());
-        PEP pep = pepRepo.findOneByPepId(pepID);
+        PEP pep = pepRepo.findOneByPepId(pepId);
         boolean success = updateDevice(pep, devices);
 
         // TODO: ack/nak 메시지 - 추후 형식에 맞게 수정
@@ -47,11 +47,11 @@ public class DeviceRegister {
     // 해당 pep에 대한 device들 DB에 추가(Device) - PEPRegister 에서도 사용
     public boolean updateDevice(PEP pep, List<JsonObject> devices) {
         devices.forEach(dev -> {
-            String devID = dev.get("deviceID").getAsString();
+            String devId = dev.get("deviceId").getAsString();
             String devName = dev.get("deviceName").getAsString();
 
             //Device DB에 저장
-            Device device = new Device(devID, devName, pep);
+            Device device = new Device(devId, devName, pep);
             devRepo.save(device);
 
             //DeviceAction DB에 저장
@@ -64,10 +64,10 @@ public class DeviceRegister {
     // 해당 device에 대한 action들 DB에 추가(DeviceAction)
     private boolean updateDeviceAction(Device device, List<JsonObject> actions) {
         actions.forEach(act -> {
-            String actionID = act.get("actionID").getAsString();  // DeviceAction.actionID
+            String actionId = act.get("actionId").getAsString();  // DeviceAction.actionId
             String actionName = act.get("actionName").getAsString(); // DeviceAction.actionName
-            JsonArray params = act.get("params").getAsJsonArray(); // DeviceAction.params
-            devActRepo.save(new DeviceAction(actionID, actionName, device, params.toString()));
+            String params = act.get("params").getAsString(); // DeviceAction.params
+            devActRepo.save(new DeviceAction(actionId, actionName, device, params));
         });
         return true;
     }

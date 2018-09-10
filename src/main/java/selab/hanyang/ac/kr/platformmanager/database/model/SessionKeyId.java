@@ -6,7 +6,7 @@ import java.io.Serializable;
 
 public class SessionKeyId implements Serializable {
 
-    public String pepID;
+    public String pepId;
 
     public String sessionKey;
 

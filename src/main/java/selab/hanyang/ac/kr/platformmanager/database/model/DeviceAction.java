@@ -8,8 +8,8 @@ public class DeviceAction {
 
     private DeviceAction(){}
 
-    public DeviceAction(String actionID, String actionName, Device device, String params){
-        this.actionID = actionID;
+    public DeviceAction(String actionId, String actionName, Device device, String params){
+        this.actionId = actionId;
         this.actionName = actionName;
         this.device = device;
         this.params = params;
@@ -17,9 +17,9 @@ public class DeviceAction {
 
     @Id
     @Column(name = "action_id")
-    private String actionID;
+    private String actionId;
 
-    @Column(name = "actionName")
+    @Column(name = "action_name")
     private String actionName;
 
     @ManyToOne
@@ -28,4 +28,20 @@ public class DeviceAction {
 
     @Column(name = "params")
     private String params;
+
+    public String getActionId() {
+        return actionId;
+    }
+
+    public String getActionName() {
+        return actionName;
+    }
+
+    public Device getDevice() {
+        return device;
+    }
+
+    public String getParams() {
+        return params;
+    }
 }
