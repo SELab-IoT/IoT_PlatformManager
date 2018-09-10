@@ -16,6 +16,7 @@ import selab.hanyang.ac.kr.platformmanager.database.repository.PDPRepository;
 
 import javax.annotation.PostConstruct;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -162,7 +163,7 @@ public class PDPInterface {
     @PostConstruct
     private void initBalana(){
         // Set balana config file.
-        String configLocation = "src" + File.separator + "main" + File.separator + "resources"+File.separator+"config.xml";
+        String configLocation =  String.join(File.separator, ".", "conf", "pdp", "config.xml");
         System.setProperty(ConfigurationStore.PDP_CONFIG_PROPERTY, configLocation);
 
         // Create default instance of Balana

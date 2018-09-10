@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class PlatformmanagerApplication {
 
 	public static void main(String[] args) {
+		System.out.println("[SELab IoT - Platform Manager Starting...]");
 		SpringApplication.run(PlatformmanagerApplication.class, args);
 	}
 }
