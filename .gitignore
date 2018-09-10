@@ -1,7 +1,7 @@
 # ignore all
 *
 **
-white list
+# white list
 !.mvn/wrapper/maven-wrapper.jar
 !lib
 !lib/*
@@ -9,7 +9,22 @@ white list
 !src
 !src/*
 !src/**
+!conf
+!conf/*
+!conf/**
+!res
+!res/*
+!res/**
+!target
+!target/conf
+!target/conf/*
+!target/conf/**
+!target/res
+!target/res/*
+!target/res/**
+!target/*.jar
 !pom.xml
 !LICENSE
 !README.md
 !.gitignore
+
