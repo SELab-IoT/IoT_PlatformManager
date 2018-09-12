@@ -28,7 +28,9 @@ class RequestParser{
     public void setRequest(HttpServletRequest request){
         try {
             String requestText = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+            System.out.println("Request Text : "+requestText);
             json = gson.fromJson(requestText, JsonElement.class);
+            System.out.println("Parsed : "+json.toString());
         } catch (IOException e) {
             e.printStackTrace();
         }

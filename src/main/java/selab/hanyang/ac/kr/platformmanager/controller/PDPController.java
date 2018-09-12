@@ -23,6 +23,7 @@ public class PDPController {
     @PostMapping("/evaluate")
     public @ResponseBody
     String evaluatePolicyRequest(HttpServletRequest request, HttpServletResponse httpResponse) {
+
         RequestParser parser = new RequestParser(request);
 
         System.out.println("Request:"+request);
