@@ -1,5 +1,6 @@
 package selab.hanyang.ac.kr.platformmanager.controller;
 
+import com.google.gson.JsonArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -24,12 +25,12 @@ public class PDPController {
     String evaluatePolicyRequest(HttpServletRequest request, HttpServletResponse httpResponse) {
         RequestParser parser = new RequestParser(request);
 
-        String requestBody = parser.getAsString("body");
+        JsonArray payload = parser.getAsJsonArray("body");
         String pepId = parser.getAsString("pepId");
 
         RequestCtx requestCtx = null;
         try {
-            requestCtx = new XACMLConverter().convert(parser.getAsJsonArray());
+            requestCtx = new XACMLConverter().convert(payload);
             System.out.println(requestCtx);
         } catch (URISyntaxException e) {
             e.printStackTrace();
@@ -40,11 +41,6 @@ public class PDPController {
             httpResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         return response;
 
-    }
-
-    /* Deprecated */
-    private String evaluateRequest(String requestBody, String pepId) {
-        return !(requestBody == null ||requestBody.isEmpty()) ? pdpInterface.evaluate(requestBody, pepId) : null;
     }
 
     private String evaluateRequest(RequestCtx requestBody, String pepId) {
