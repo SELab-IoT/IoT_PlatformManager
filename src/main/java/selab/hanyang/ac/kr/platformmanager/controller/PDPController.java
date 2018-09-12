@@ -26,13 +26,9 @@ public class PDPController {
 
         RequestParser parser = new RequestParser(request);
 
-        System.out.println("Request:"+request);
-
         JsonArray payload = parser.getAsJsonArray("body");
-        System.out.println("Request Body:"+payload);
 
         String pepId = parser.getAsString("pepId");
-        System.out.println("PEP ID:"+pepId);
 
         RequestCtx requestCtx = null;
         try {
