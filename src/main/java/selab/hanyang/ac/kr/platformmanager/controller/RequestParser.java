@@ -29,7 +29,10 @@ class RequestParser{
         try {
             StringBuilder builder = new StringBuilder();
             request.getReader().lines().forEach(builder::append);
+
+            System.out.println("REQUEST BODY:"+builder.toString());
             json = gson.fromJson(builder.toString(), JsonElement.class);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
