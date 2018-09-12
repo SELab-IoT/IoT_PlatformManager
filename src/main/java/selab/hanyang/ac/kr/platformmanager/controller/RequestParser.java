@@ -27,6 +27,10 @@ class RequestParser{
     // request 설정
     public void setRequest(HttpServletRequest request){
         try {
+
+            System.out.println("LINES:");
+            request.getReader().lines().forEach(System.out::println);
+
             System.out.println("Query String:"+request.getQueryString());
             String requestText = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
             System.out.println("Request Text : "+requestText);
