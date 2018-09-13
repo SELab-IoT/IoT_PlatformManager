@@ -1,7 +1,6 @@
 package selab.hanyang.ac.kr.platformmanager.database.model;
 
 import javax.persistence.*;
-import java.io.Serializable;
 
 @Entity @IdClass(SessionKeyId.class)
 @Table(name = "session_key")
@@ -9,7 +8,7 @@ public class SessionKey{
 
     @Id
     @Column
-    public String pepID;
+    public String pepId;
 
     @Id
     @Column
@@ -18,8 +17,8 @@ public class SessionKey{
     public SessionKey() {
     }
 
-    public SessionKey(String pepID, String sessionKey) {
-        this.pepID = pepID;
+    public SessionKey(String pepId, String sessionKey) {
+        this.pepId = pepId;
         this.sessionKey = sessionKey;
     }
 }

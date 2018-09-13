@@ -27,8 +27,12 @@ class RequestParser{
     // request 설정
     public void setRequest(HttpServletRequest request){
         try {
-            String requestText = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
-            json = gson.fromJson(requestText, JsonElement.class);
+            StringBuilder builder = new StringBuilder();
+            request.getReader().lines().forEach(builder::append);
+
+            System.out.println("REQUEST BODY:"+builder.toString());
+            json = gson.fromJson(builder.toString(), JsonElement.class);
+
         } catch (IOException e) {
             e.printStackTrace();
         }

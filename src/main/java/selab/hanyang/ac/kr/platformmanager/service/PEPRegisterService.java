@@ -35,9 +35,9 @@ public class PEPRegisterService {
     @Async
     public Future<JsonObject> addPEPtoPEPGroup(JsonObject object) {
         System.out.println(object);
-        String userId = object.get("userID").getAsString();
-        JsonElement pepId = object.get("pepID");
-        JsonElement pepGroupId = object.get("pepGroupID");
+        String userId = object.get("userId").getAsString();
+        JsonElement pepId = object.get("pepId");
+        JsonElement pepGroupId = object.get("pepGroupId");
         User user = userRepository.findOne(userId);
         JsonObject response = new JsonObject();
         if (user == null) {
@@ -57,9 +57,9 @@ public class PEPRegisterService {
     }
 
     @Async
-    public Future<JsonObject> searchPEPGroup(String userID, String pepID) {
-        User user = userRepository.findOne(userID);
-        PEP pep = pepRepository.findOne(pepID);
+    public Future<JsonObject> searchPEPGroup(String userId, String pepId) {
+        User user = userRepository.findOne(userId);
+        PEP pep = pepRepository.findOne(pepId);
         Gson gson = new GsonBuilder().create();
         JsonObject response = new JsonObject();
         if (user == null) {
@@ -69,11 +69,11 @@ public class PEPRegisterService {
         } else if (pep.getPepGroup() != null) { // TODO: NullPointerException 해결
             PEPGroup pepGroup = pepGroupRepository.findByOwnerAndPEP(user, pep);
             response.addProperty("hasGroup", true);
-            response.addProperty("pepGroup", pepGroup.getPepGroupID());
+            response.addProperty("pepGroup", pepGroup.getPepGroupId());
         } else {
             response.addProperty("hasGroup", false);
             List<PEPGroup> pepGroups = pepGroupRepository.findPEPGroupsByOwner(user);
-            response.addProperty("pepGroupID", gson.toJson(pepGroups.stream().map(pepGroup -> pepGroup.getPepGroupID()).toArray()));
+            response.addProperty("pepGroupId", gson.toJson(pepGroups.stream().map(pepGroup -> pepGroup.getPepGroupId()).toArray()));
         }
 
         return new AsyncResult<>(response);
@@ -83,13 +83,13 @@ public class PEPRegisterService {
     @Async
     public Future<JsonObject> savePEPProfile(JsonObject request) {
         String sessionKey = request.get("sessionKey").getAsString();
-        String pepID = request.get("pepID").getAsString();
+        String pepId = request.get("pepId").getAsString();
         String pepProfile = request.get("pepProfile").getAsString();
         JsonObject response = new JsonObject();
 
         Gson gson = new GsonBuilder().create();
         JsonObject pepProfileJson = gson.fromJson(pepProfile, JsonObject.class);
-        PEP pep = pepRepository.findOneByPepId(pepID);
+        PEP pep = pepRepository.findOneByPepId(pepId);
         pep.setIp(pepProfileJson.get("ip").getAsString());
         JsonArray deviceProfiles = pepProfileJson.getAsJsonArray("deviceProfiles");
         List<JsonObject> devices = new LinkedList<>();
@@ -110,7 +110,7 @@ public class PEPRegisterService {
     }
 
     private void addGroup(JsonObject object, PEP pep, JsonObject response) {
-        long pepGroupId = object.get("pepGroupID").getAsLong();
+        long pepGroupId = object.get("pepGroupId").getAsLong();
         PEPGroup pepGroup = pepGroupRepository.findOne(pepGroupId);
         pep.setPepGroup(pepGroup);
         pepRepository.saveAndFlush(pep);
@@ -122,9 +122,9 @@ public class PEPRegisterService {
         }
     }
 
-    private void returnSessionKey(String pepID, JsonObject response) throws Exception {
-        String otpKey = OTP.create(pepID);
-        sessionKeyRespository.save(new SessionKey(pepID, otpKey));
+    private void returnSessionKey(String pepId, JsonObject response) throws Exception {
+        String otpKey = OTP.create(pepId);
+        sessionKeyRespository.save(new SessionKey(pepId, otpKey));
         response.addProperty("sessionKey", otpKey);
     }
 
@@ -144,9 +144,9 @@ public class PEPRegisterService {
         }
     }
 
-    private void addGroupMember(JsonObject object, User user, long pepGroudID, JsonObject response) {
+    private void addGroupMember(JsonObject object, User user, long pepGroudId, JsonObject response) {
         String pepGroupPW = object.get("groupPW").getAsString();
-        PEPGroup pepGroup = pepGroupRepository.findOne(pepGroudID);
+        PEPGroup pepGroup = pepGroupRepository.findOne(pepGroudId);
         if (checkPEPGroupPW(pepGroup, pepGroupPW)) {
             GroupMember groupMember = new GroupMember(user, pepGroup);
             groupMemberRepository.saveAndFlush(groupMember);

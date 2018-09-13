@@ -60,12 +60,12 @@ public class PEPRegister {
 
 
     @CrossOrigin(origins = "http://localhost")
-    @GetMapping(path="/groups/{userID}/{pepID}", produces = "application/json")
-    public @ResponseBody String searchPEPGroup(@PathVariable String userID, @PathVariable String pepID) {
+    @GetMapping(path="/groups/{userId}/{pepId}", produces = "application/json")
+    public @ResponseBody String searchPEPGroup(@PathVariable String userId, @PathVariable String pepId) {
         Gson gson = new GsonBuilder().create();
         JsonObject response = null;
         try {
-            response = pepRegisterService.searchPEPGroup(userID, pepID).get();
+            response = pepRegisterService.searchPEPGroup(userId, pepId).get();
         } catch (InterruptedException e) {
             e.printStackTrace();
             response = new JsonObject();

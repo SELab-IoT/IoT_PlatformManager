@@ -17,7 +17,7 @@ public class PEPGroup {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "pep_group_id")
-    private long pepGroupID;
+    private long pepGroupId;
 
     @Column(name = "pep_group_name")
     private String pepGroupName;
@@ -29,8 +29,8 @@ public class PEPGroup {
     @JoinColumn(name = "owner")
     private User owner;
 
-    public long getPepGroupID() {
-        return pepGroupID;
+    public long getPepGroupId() {
+        return pepGroupId;
     }
 
     public String getPepGroupName() {

@@ -27,9 +27,9 @@ public class Device {
 
     public Device(){}
 
-    public Device(String devID, String devName, PEP pep) {
-        this.deviceId = devID;
-        this.deviceName = devName;
+    public Device(String deviceId, String deviceName, PEP pep) {
+        this.deviceId = deviceId;
+        this.deviceName = deviceName;
         this.pep = pep;
     }
 }
