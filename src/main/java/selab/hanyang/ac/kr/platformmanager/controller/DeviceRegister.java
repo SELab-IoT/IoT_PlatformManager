@@ -33,31 +33,39 @@ public class DeviceRegister {
     @CrossOrigin(origins = "http://localhost")
     @PostMapping("devices/{pepId}")
     public @ResponseBody
-    String updateDevice(@PathVariable String pepId, @RequestBody String request, HttpServletResponse httpResponse){
+    String updateDevices(@PathVariable String pepId, @RequestBody String request, HttpServletResponse httpResponse){
 
-        RequestParser parser = new RequestParser(request);
-        List<JsonObject> devices = RequestParser.mapToObject(parser.getAsJsonArray());
-        PEP pep = pepRepo.findOneByPepId(pepId);
-        boolean success = updateDevice(pep, devices);
+        try {
+            RequestParser parser = new RequestParser(request);
+            List<JsonObject> devices = RequestParser.mapToObject(parser.getAsJsonArray());
+            PEP pep = pepRepo.findOneByPepId(pepId);
+            boolean success = updateDevices(pep, devices);
 
-        // TODO: ack/nak 메시지 - 추후 형식에 맞게 수정
-        return success ? "{\"response\":\"Ack\"}":"{\"response\":\"Nak\"}";
+            return "{\"updated\":" + success + "}";
+        } catch (Exception e) {
+            return "{\"updated\":" + false + "}";
+        }
+
     }
 
     // 해당 pep에 대한 device들 DB에 추가(Device) - PEPRegister 에서도 사용
-    public boolean updateDevice(PEP pep, List<JsonObject> devices) {
-        devices.forEach(dev -> {
-            String devId = dev.get("deviceId").getAsString();
-            String devName = dev.get("deviceName").getAsString();
+    public boolean updateDevices(PEP pep, List<JsonObject> devices) {
+        try {
+            devices.forEach(dev -> {
+                String devId = dev.get("deviceId").getAsString();
+                String devName = dev.get("deviceName").getAsString();
 
-            //Device DB에 저장
-            Device device = new Device(devId, devName, pep);
-            devRepo.save(device);
+                //Device DB에 저장
+                Device device = new Device(devId, devName, pep);
+                devRepo.save(device);
 
-            //DeviceAction DB에 저장
-            List<JsonObject> actions = RequestParser.mapToObject(dev.get("actions").getAsJsonArray());
-            updateDeviceAction(device, actions);
-        });
+                //DeviceAction DB에 저장
+                List<JsonObject> actions = RequestParser.mapToObject(dev.get("actions").getAsJsonArray());
+                updateDeviceAction(device, actions);
+            });
+        } catch (Exception e) {
+            return false;
+        }
         return true;
     }
 
