@@ -1,6 +1,5 @@
 package selab.hanyang.ac.kr.platformmanager.controller;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -12,7 +11,6 @@ import selab.hanyang.ac.kr.platformmanager.database.repository.DeviceActionRepos
 import selab.hanyang.ac.kr.platformmanager.database.repository.DeviceRepository;
 import selab.hanyang.ac.kr.platformmanager.database.repository.PEPRepository;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 

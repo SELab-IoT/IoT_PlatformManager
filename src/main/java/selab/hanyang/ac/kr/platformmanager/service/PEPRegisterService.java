@@ -98,7 +98,7 @@ public class PEPRegisterService {
         });
 
         DeviceRegister deviceRegister = new DeviceRegister();
-        deviceRegister.updateDevice(pep, devices);
+        deviceRegister.updateDevices(pep, devices);
 
         return new AsyncResult<>(response);
     }
