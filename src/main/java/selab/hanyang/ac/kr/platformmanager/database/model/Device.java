@@ -14,6 +14,8 @@ public class Device {
         return deviceName;
     }
 
+    public String getMacAddress() {return macAddress; }
+
     @Id
     @Column(name = "device_id")
     private String deviceId;
@@ -21,15 +23,19 @@ public class Device {
     @Column(name = "device_name")
     private String deviceName;
 
+    @Column(name = "mac_address")
+    private String macAddress;
+
     @ManyToOne
     @JoinColumn(name = "pep_id")
     private PEP pep;
 
     public Device(){}
 
-    public Device(String deviceId, String deviceName, PEP pep) {
+    public Device(String deviceId, String deviceName, String macAddress, PEP pep) {
         this.deviceId = deviceId;
         this.deviceName = deviceName;
+        this.macAddress = macAddress;
         this.pep = pep;
     }
 }
