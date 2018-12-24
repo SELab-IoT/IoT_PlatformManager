@@ -26,7 +26,8 @@ public class DeviceAction {
     @JoinColumn(name = "device_id")
     private Device device;
 
-    @Column(name = "params")
+    //기본을 빈 JsonArray로 설정
+    @Column(name = "params", columnDefinition = "varchar(255) default '[]'", nullable = false)
     private String params;
 
     public String getActionId() {

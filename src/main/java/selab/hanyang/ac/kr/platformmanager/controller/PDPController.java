@@ -24,6 +24,7 @@ public class PDPController {
     @PostMapping("/evaluate")
     public @ResponseBody
     String evaluatePolicyRequest(HttpServletRequest request, HttpServletResponse httpResponse) {
+
         RequestParser parser = new RequestParser(request);
         String pepId = parser.getAsString("pepId");
         JsonArray requestBody = parser.getAsJsonArray("body");
@@ -42,17 +43,11 @@ public class PDPController {
         if(requestCtx != null)
             response = evaluateRequest(requestCtx, pepId);
 
-
         if (response == null)
             httpResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 
         return response;
 
-    }
-
-    /* Deprecated */
-    private String evaluateRequest(String requestBody, String pepId) {
-        return !(requestBody == null ||requestBody.isEmpty()) ? pdpInterface.evaluate(requestBody, pepId) : null;
     }
 
     private String evaluateRequest(RequestCtx requestBody, String pepId) {

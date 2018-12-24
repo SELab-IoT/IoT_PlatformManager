@@ -32,7 +32,7 @@ public class DeviceRegistrationController {
     @CrossOrigin(origins = "http://localhost")
     @PostMapping("devices/{pepId}")
     public @ResponseBody
-    String updateDevice(@PathVariable String pepId, @RequestBody String request, HttpServletResponse httpResponse){
+    String updateDevices(@PathVariable String pepId, @RequestBody String request, HttpServletResponse httpResponse){
 
         System.out.println("Debug in DeviceRegister::updateDevice : 38");
         System.out.println("Request: "+request);
