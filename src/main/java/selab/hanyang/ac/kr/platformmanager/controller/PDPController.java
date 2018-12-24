@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.wso2.balana.ctx.xacml3.RequestCtx;
+import selab.hanyang.ac.kr.platformmanager.util.RequestParser;
 import selab.hanyang.ac.kr.platformmanager.pdp.PDPInterface;
 import selab.hanyang.ac.kr.platformmanager.pdp.XACMLConverter;
 
@@ -25,22 +26,26 @@ public class PDPController {
     String evaluatePolicyRequest(HttpServletRequest request, HttpServletResponse httpResponse) {
 
         RequestParser parser = new RequestParser(request);
-
-        JsonArray payload = parser.getAsJsonArray("body");
-
         String pepId = parser.getAsString("pepId");
+        JsonArray requestBody = parser.getAsJsonArray("body");
+        System.out.println("Debug in PDPController::evaluatePolicyRequest : 33");
+        System.out.println("PEP Id : " + pepId);
+        System.out.println("Request Body : " + requestBody);
 
         RequestCtx requestCtx = null;
         try {
-            requestCtx = new XACMLConverter().convert(payload);
-            System.out.println(requestCtx);
+            requestCtx = new XACMLConverter().convert(requestBody);
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
 
-        String response = evaluateRequest(requestCtx, pepId);
+        String response = null;
+        if(requestCtx != null)
+            response = evaluateRequest(requestCtx, pepId);
+
         if (response == null)
             httpResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+
         return response;
 
     }

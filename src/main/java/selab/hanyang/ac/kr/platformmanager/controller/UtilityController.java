@@ -1,18 +1,17 @@
 package selab.hanyang.ac.kr.platformmanager.controller;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import selab.hanyang.ac.kr.platformmanager.database.model.Device;
+import selab.hanyang.ac.kr.platformmanager.util.RequestParser;
 import selab.hanyang.ac.kr.platformmanager.database.model.DeviceAction;
 import selab.hanyang.ac.kr.platformmanager.database.model.PEP;
 import selab.hanyang.ac.kr.platformmanager.database.model.PEPGroup;
 import selab.hanyang.ac.kr.platformmanager.database.repository.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
@@ -34,9 +33,13 @@ public class UtilityController {
 
     // 조회 기능
     @CrossOrigin(origins = "http://localhost")
-    @GetMapping("/pep-group/profile/{userId}")
+    @PostMapping("/pep-group/profile/")
     public @ResponseBody
-    String getPEPGroups(@PathVariable String userId, HttpServletResponse httpResponse){
+    String getPEPGroups(HttpServletRequest request, HttpServletResponse httpResponse){
+
+        RequestParser parser = new RequestParser(request);
+        String userId = parser.getAsString("userId");
+        String sessionKey = parser.getAsString("sessionKey");
 
         JsonArray groups = new JsonArray();
 
@@ -65,6 +68,7 @@ public class UtilityController {
                             // b. 정보 꺼내고
                             String deviceId = device.getId();
                             String deviceName = device.getName();
+                            String macAddress = device.getMacAddress();
                             JsonArray actions = new JsonArray();
 
                             // 1 ~ 4 : actions 만들기
@@ -90,6 +94,7 @@ public class UtilityController {
                             JsonObject devProfile = new JsonObject();
                             devProfile.addProperty("deviceId", deviceId);
                             devProfile.addProperty("deviceName", deviceName);
+                            devProfile.addProperty("macAddress", macAddress);
                             devProfile.add("actions", actions);
 
                             // d. JsonArray에 각각 추가
